@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Anuolu-2020/Expense-Calculator-App/controllers"
+	"github.com/Anuolu-2020/Expense-Calculator-App/handlers"
 	"github.com/Anuolu-2020/Expense-Calculator-App/middleware"
 )
 
@@ -19,9 +19,9 @@ func main() {
 
 	router.Handle("/static/", http.FileServer(http.FS(static)))
 
-	router.HandleFunc("GET /index", controllers.Home)
+	router.HandleFunc("GET /index", handlers.Home)
 
-	router.HandleFunc("GET /welcome", controllers.Welcome)
+	router.HandleFunc("GET /welcome", handlers.Welcome)
 
 	server := &http.Server{
 		Addr:    ":8080",
