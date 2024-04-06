@@ -25,6 +25,8 @@ func main() {
 
 	router.HandleFunc("GET /welcome", route.Welcome)
 
+	router.HandleFunc("POST /api/auth", route.Auth)
+
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: middleware.LoggerMiddleware(router),
