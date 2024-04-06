@@ -22,7 +22,7 @@ func (j *Json) Encode(w http.ResponseWriter, responseBody interface{}) []byte {
 
 func (j *Json) Decode(w http.ResponseWriter, body io.ReadCloser, schema interface{}) interface{} {
 
-	err := json.NewDecoder(body).Decode(schema)
+	err := json.NewDecoder(body).Decode(&schema)
 
 	if err != nil {
 		http.Error(w, "Error occurred while decoding json", http.StatusBadRequest)
