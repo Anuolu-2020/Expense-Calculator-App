@@ -7,14 +7,19 @@ import (
 	"net/http"
 )
 
+//go:embed static
+var static embed.FS
+
 func main() {
 	//go:generate npm run build
 
-	var static embed.FS
-
 	router := http.NewServeMux()
 
-	router.Handle("/static", http.FileServer(http.FS(static)))
+	router.Handle("/static/", http.FileServer(http.FS(static)))
+
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "templates/index.html")
+	})
 
 	router.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
 		message := "welcome to expense calculator home route"
