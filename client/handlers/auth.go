@@ -16,19 +16,11 @@ func (h Handler) Auth(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 
-	decodedUser, err := Json.Decode(r.Body, &user)
-
-	if err != nil {
-		http.Error(w, "Error occurred while decoding json", http.StatusBadRequest)
-		return
-	}
+	decodedUser := Json.Decode(w, r.Body, &user)
 
 	w.WriteHeader(http.StatusOK)
 
-	response, err := Json.Encode(decodedUser)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	}
+	response := Json.Encode(w, decodedUser)
 
 	w.Write(response)
 }
