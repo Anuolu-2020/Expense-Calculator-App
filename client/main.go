@@ -2,9 +2,10 @@ package main
 
 import (
 	"embed"
-	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/Anuolu-2020/Expense-Calculator-App/controllers"
 )
 
 //go:embed static
@@ -17,21 +18,9 @@ func main() {
 
 	router.Handle("/static/", http.FileServer(http.FS(static)))
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "templates/index.html")
-	})
+	router.HandleFunc("/", controllers.Home)
 
-	router.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
-		message := "welcome to expense calculator home route"
-
-		responseMessage, err := json.Marshal(message)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		w.Write([]byte(responseMessage))
-	})
+	router.HandleFunc("GET /welcome", controllers.Welcome)
 
 	server := &http.Server{
 		Addr:    ":8080",
