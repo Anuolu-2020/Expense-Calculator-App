@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func Welcome(w http.ResponseWriter, r *http.Request) {
+func (h Handler) Welcome(w http.ResponseWriter, r *http.Request) {
 	message := "welcome to expense calculator welcome route"
 
 	responseMessage, err := json.Marshal(message)
