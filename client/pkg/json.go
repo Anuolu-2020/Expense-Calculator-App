@@ -3,28 +3,31 @@ package pkg
 import (
 	"encoding/json"
 	"io"
+	"net/http"
 )
 
 type Json struct {
 }
 
-func (j *Json) Encode(responseBody interface{}) ([]byte, error) {
+func (j *Json) Encode(w http.ResponseWriter, responseBody interface{}) []byte {
 	encodedBody, err := json.Marshal(responseBody)
 
 	if err != nil {
-		return nil, err
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return nil
 	}
 
-	return encodedBody, nil
+	return encodedBody
 }
 
-func (j *Json) Decode(body io.ReadCloser, schema interface{}) (interface{}, error) {
+func (j *Json) Decode(w http.ResponseWriter, body io.ReadCloser, schema interface{}) interface{} {
 
 	err := json.NewDecoder(body).Decode(schema)
 
 	if err != nil {
-		return nil, err
+		http.Error(w, "Error occurred while decoding json", http.StatusBadRequest)
+		return nil
 	}
 
-	return schema, nil
+	return schema
 }
