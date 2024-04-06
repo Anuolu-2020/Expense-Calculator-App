@@ -17,11 +17,13 @@ func main() {
 
 	router := http.NewServeMux()
 
+	route := &handlers.Handler{}
+
 	router.Handle("/static/", http.FileServer(http.FS(static)))
 
-	router.HandleFunc("GET /index", handlers.Home)
+	router.HandleFunc("GET /index", route.Home)
 
-	router.HandleFunc("GET /welcome", handlers.Welcome)
+	router.HandleFunc("GET /welcome", route.Welcome)
 
 	server := &http.Server{
 		Addr:    ":8080",
