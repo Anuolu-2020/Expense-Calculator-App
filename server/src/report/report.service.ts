@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { ReportType } from '../data';
-import { data } from '../data';
-import { v4 as uuid } from 'uuid';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ReportType } from 'src/dtos/report.dto';
 import { ReportResponseDto } from '../dtos/report.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-interface Report {
+export interface Report {
   source: string;
   amount: number;
 }
@@ -16,66 +15,75 @@ interface UpdateReport {
 
 @Injectable()
 export class ReportService {
-  getAllReports(type: ReportType): ReportResponseDto[] {
-    return data.report
-      .filter((report) => report.type === type)
-      .map((report) => new ReportResponseDto(report));
-  }
-  getReportById(type: ReportType, id: string): ReportResponseDto {
-    const report = data.report
-      .filter((report) => report.type === type)
-      .find((report) => report.id === id);
+  constructor(private readonly prisma: PrismaService) {}
 
-    if (!report) return;
+  async getAllReports(type: ReportType): Promise<ReportResponseDto[]> {
+    const report = await this.prisma.report.findMany({
+      where: {
+        type,
+      },
+    });
 
-    return new ReportResponseDto(report);
+    return report;
   }
-  createReport(
-    type: ReportType,
-    { source, amount }: Report,
-  ): ReportResponseDto {
-    const newReport = {
-      id: uuid(),
-      source,
-      amount,
-      created_at: new Date(),
-      updated_at: new Date(),
-      type,
-    };
-    data.report.push(newReport);
-    return new ReportResponseDto(newReport);
-  }
-  updateReport(
+
+  async getReportById(
     type: ReportType,
     id: string,
-    body: UpdateReport,
-  ): ReportResponseDto {
-    const reportToUpdate = data.report
-      .filter((report) => report.type === type)
-      .find((report) => report.id === id);
+  ): Promise<ReportResponseDto> {
+    const report = await this.prisma.report.findUnique({
+      where: {
+        type,
+        id,
+      },
+    });
+    return report;
+  }
 
-    if (!reportToUpdate) {
-      return null;
+  async createReport(
+    userId: string,
+    type: ReportType,
+    { source, amount }: Report,
+  ): Promise<ReportResponseDto> {
+    //save report
+    const report = await this.prisma.report.create({
+      data: {
+        source,
+        amount,
+        type,
+        userId,
+      },
+    });
+
+    return report;
+  }
+
+  async updateReport(
+    type: ReportType,
+    id: string,
+    data: UpdateReport,
+  ): Promise<ReportResponseDto> {
+    const report = await this.prisma.report.findUnique({ where: { id, type } });
+
+    if (!report) {
+      throw new NotFoundException('Report not found');
     }
 
-    const reportIndex = data.report.findIndex(
-      (report) => report.id === reportToUpdate.id,
-    );
+    const newReport = await this.prisma.report.update({
+      where: { id, type },
+      data,
+    });
 
-    data.report[reportIndex] = {
-      ...data.report[reportIndex],
-      ...body,
-      updated_at: new Date(),
-    };
-
-    return new ReportResponseDto(data.report[reportIndex]);
+    return newReport;
   }
-  deleteReport(id: string) {
-    const reportIndex = data.report.findIndex((report) => report.id === id);
 
-    if (reportIndex === -1) return;
+  async deleteReport(id: string) {
+    const report = await this.prisma.report.findUnique({ where: { id } });
 
-    data.report.splice(reportIndex, 1);
-    return;
+    if (!report) {
+      throw new NotFoundException('Report not found');
+    }
+
+    return await this.prisma.report.delete({ where: { id } });
   }
 }

@@ -10,62 +10,70 @@ import {
   ParseUUIDPipe,
   ParseEnumPipe,
 } from '@nestjs/common';
-import { ReportType, data } from '../data';
 import { ReportService } from './report.service';
 import {
   CreateReportDto,
   ReportResponseDto,
   UpdateReportDto,
+  ReportType,
 } from '../dtos/report.dto';
 
 @Controller('report/:type')
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
   @Get()
-  getAllReports(
+  async getAllReports(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
-  ): ReportResponseDto[] {
+  ): Promise<ReportResponseDto[]> {
     const reportType =
-      type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
+      type === 'income' ? ReportType.income : ReportType.expense;
 
     return this.reportService.getAllReports(reportType);
   }
+
   @Get(':id')
-  getReportById(
+  async getReportById(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
     @Param('id', ParseUUIDPipe) id: string,
-  ): ReportResponseDto {
+  ): Promise<ReportResponseDto> {
     const reportType =
-      type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
+      type === 'income' ? ReportType.income : ReportType.expense;
 
-    return this.reportService.getReportById(reportType, id);
+    return await this.reportService.getReportById(reportType, id);
   }
-  @Post()
-  createReport(
+
+  @Post(':userId')
+  async createReport(
     @Body() { source, amount }: CreateReportDto,
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
-  ): ReportResponseDto {
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<ReportResponseDto> {
+    //Get report type enum
     const reportType =
-      type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
+      type === 'income' ? ReportType.income : ReportType.expense;
 
-    return this.reportService.createReport(reportType, { source, amount });
+    return await this.reportService.createReport(userId, reportType, {
+      source,
+      amount,
+    });
   }
+
   @Put(':id')
-  updateReportById(
+  async updateReportById(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body()
     body: UpdateReportDto,
-  ): ReportResponseDto {
+  ): Promise<ReportResponseDto> {
     const reportType =
-      type === 'income' ? ReportType.INCOME : ReportType.EXPENSE;
+      type === 'income' ? ReportType.income : ReportType.expense;
 
     return this.reportService.updateReport(reportType, id, body);
   }
 
   @HttpCode(204)
   @Delete(':id')
-  deleteReportById(@Param('id', ParseUUIDPipe) id: string) {
+  async deleteReportById(@Param('id', ParseUUIDPipe) id: string) {
     return this.reportService.deleteReport(id);
   }
 }
