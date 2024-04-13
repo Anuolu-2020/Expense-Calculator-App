@@ -1,4 +1,4 @@
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -6,7 +6,11 @@ import {
   IsPositive,
   IsString,
 } from 'class-validator';
-import { ReportType } from 'src/data';
+
+export enum ReportType {
+  income = 'income',
+  expense = 'expense',
+}
 
 export class CreateReportDto {
   @IsNumber()
@@ -35,17 +39,10 @@ export class ReportResponseDto {
   source: string;
   amount: number;
   @Exclude()
-  created_at: Date;
+  createdAt: Date;
   @Exclude()
-  updated_at: Date;
-  type: ReportType;
-
-  @Expose({ name: 'createdAt' })
-  transformCreatedAt() {
-    return this.created_at;
-  }
-
-  constructor(partial: Partial<ReportResponseDto>) {
-    Object.assign(this, partial);
-  }
+  updatedAt: Date;
+  type: any;
+  @Exclude()
+  userId: string;
 }
