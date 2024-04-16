@@ -19,7 +19,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Report    Report[]
+  Reports    Report[]
 }
 
 model Report {
