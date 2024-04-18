@@ -25,7 +25,16 @@ func Init() *gorm.DB {
 		},
 	)
 
-	DATABASE_URL := os.Getenv("DATABASE_URL")
+	// Get go environment
+	Go_ENV := os.Getenv("GO_ENV")
+
+	var DATABASE_URL string
+
+	if Go_ENV == "development" {
+		DATABASE_URL = os.Getenv("DATABASE_URL")
+	} else {
+		DATABASE_URL = os.Getenv("LOCAL_DB_URL")
+	}
 
 	db, err := gorm.Open(postgres.Open(DATABASE_URL), &gorm.Config{Logger: newLogger})
 	if err != nil {
