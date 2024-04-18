@@ -74,5 +74,58 @@ func (h Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.Session.Put(r.Context(), "username", newUser.Username)
+
+	newUser.Password = "" // Exclude password
+
 	pkg.SendResponse(w, "User created successfully", newUser, http.StatusCreated)
+}
+
+// Sign In route
+func (h Handler) SignIn(w http.ResponseWriter, r *http.Request) {
+	var user User
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		pkg.SendErrorResponse(
+			w,
+			"An Error Occurred while Decoding Json",
+			http.StatusInternalServerError,
+		)
+		log.Print("An error occurred while encoding json %w", err)
+		return
+	}
+
+	if ok, errors := pkg.ValidateInputs(user); !ok {
+		pkg.ValidationError(w, http.StatusUnprocessableEntity, errors)
+		return
+	}
+
+	var userFound models.User
+	result := h.DB.Where("username = ?", user.Username).First(&userFound)
+
+	if result.RowsAffected == 0 {
+		pkg.SendErrorResponse(w, "User Not Found", http.StatusNotFound)
+		return
+	}
+
+	if result.Error != nil {
+		log.Print(result.Error)
+		pkg.SendErrorResponse(w, "An error occurred", http.StatusInternalServerError)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(userFound.Password), []byte(user.Password)); err != nil {
+		log.Printf("Error comparing password: %v", err)
+		pkg.SendErrorResponse(w, "Username or password not correct", http.StatusUnauthorized)
+		return
+	}
+
+	h.Session.RenewToken(r.Context())
+
+	h.Session.Put(r.Context(), "username", user.Username)
+
+	userFound.Password = ""
+
+	pkg.SendResponse(w, "User signed in successfully", userFound, http.StatusOK)
 }
