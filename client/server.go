@@ -22,6 +22,7 @@ func main() {
 	// Load env files
 	err := godotenv.Load()
 	if err != nil {
+		log.Println("Error loading env files")
 		log.Fatal(err)
 	}
 
@@ -35,16 +36,25 @@ func main() {
 	// connect to db
 	DB := db.Init()
 
+	// Initailize Session
+	sessionManager := middleware.InitSession()
+
 	// Initialize Handlers
-	h := handlers.New(DB)
+	h := handlers.New(DB, sessionManager)
 
 	// Setup and initialize routes
 	setUpRoutes.New(router)
-	setUpRoutes.InitializeRoutes(h)
+	setUpRoutes.InitializeRoutes(h, sessionManager)
+
+	// Middleware stacks
+	stacks := middleware.MiddlewareStack(
+		middleware.LoggerMiddleware,
+		sessionManager.LoadAndSave,
+	)
 
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: middleware.LoggerMiddleware(router),
+		Handler: stacks(router),
 	}
 
 	log.Printf("Server listening on port %v", server.Addr)
