@@ -20,7 +20,7 @@ import {
 
 @Controller('report/:type')
 export class ReportController {
-  constructor(private readonly reportService: ReportService) {}
+  constructor(private readonly reportService: ReportService) { }
   @Get()
   async getAllReports(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
@@ -31,11 +31,11 @@ export class ReportController {
     return this.reportService.getAllReports(reportType);
   }
 
-  @Get(':id')
+  @Get(':userId')
   async getReportById(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ReportResponseDto> {
+    @Param('userId', ParseUUIDPipe) id: string,
+  ): Promise<ReportResponseDto[]> {
     const reportType =
       type === 'income' ? ReportType.income : ReportType.expense;
 
