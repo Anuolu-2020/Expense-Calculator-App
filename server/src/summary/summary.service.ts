@@ -4,10 +4,11 @@ import { ReportService, Report } from 'src/report/report.service';
 
 @Injectable()
 export class SummaryService {
-  constructor(private readonly reportService: ReportService) {}
-  async calculateSummary() {
-    const getTotalExpense = await this.reportService.getAllReports(
+  constructor(private readonly reportService: ReportService) { }
+  async calculateSummary(id: string) {
+    const getTotalExpense = await this.reportService.getReportById(
       ReportType.expense,
+      id,
     );
 
     const totalExpense = getTotalExpense.reduce(
@@ -15,8 +16,9 @@ export class SummaryService {
       0,
     );
 
-    const getTotalIncome = await this.reportService.getAllReports(
+    const getTotalIncome = await this.reportService.getReportById(
       ReportType.income,
+      id,
     );
 
     const totalIncome = getTotalIncome.reduce(
