@@ -10,9 +10,9 @@ datasource db {
 model reports {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   source     String?
-  amount     BigInt?
-  created_at DateTime? @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
+  amount     Int?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt @db.Timestamptz(6)
   user_id    String?   @db.Uuid
   type       String?
   users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_reports")
@@ -22,7 +22,7 @@ model users {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   username   String?   @unique(map: "uni_users_username")
   password   String?
-  created_at DateTime? @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @updatedAt @db.Timestamptz(6)
   reports    reports[]
 }
