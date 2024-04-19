@@ -15,10 +15,10 @@ interface UpdateReport {
 
 @Injectable()
 export class ReportService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getAllReports(type: ReportType): Promise<ReportResponseDto[]> {
-    const report = await this.prisma.report.findMany({
+    const report = await this.prisma.reports.findMany({
       where: {
         type,
       },
@@ -30,11 +30,11 @@ export class ReportService {
   async getReportById(
     type: ReportType,
     id: string,
-  ): Promise<ReportResponseDto> {
-    const report = await this.prisma.report.findUnique({
+  ): Promise<ReportResponseDto[]> {
+    const report = await this.prisma.reports.findMany({
       where: {
         type,
-        id,
+        user_id: id,
       },
     });
     return report;
@@ -46,12 +46,12 @@ export class ReportService {
     { source, amount }: Report,
   ): Promise<ReportResponseDto> {
     //save report
-    const report = await this.prisma.report.create({
+    const report = await this.prisma.reports.create({
       data: {
         source,
         amount,
         type,
-        userId,
+        user_id: userId,
       },
     });
 
@@ -63,13 +63,15 @@ export class ReportService {
     id: string,
     data: UpdateReport,
   ): Promise<ReportResponseDto> {
-    const report = await this.prisma.report.findUnique({ where: { id, type } });
+    const report = await this.prisma.reports.findUnique({
+      where: { id, type },
+    });
 
     if (!report) {
       throw new NotFoundException('Report not found');
     }
 
-    const newReport = await this.prisma.report.update({
+    const newReport = await this.prisma.reports.update({
       where: { id, type },
       data,
     });
@@ -78,12 +80,12 @@ export class ReportService {
   }
 
   async deleteReport(id: string) {
-    const report = await this.prisma.report.findUnique({ where: { id } });
+    const report = await this.prisma.reports.findUnique({ where: { id } });
 
     if (!report) {
       throw new NotFoundException('Report not found');
     }
 
-    return await this.prisma.report.delete({ where: { id } });
+    return await this.prisma.reports.delete({ where: { id } });
   }
 }
