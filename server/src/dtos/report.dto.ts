@@ -39,10 +39,10 @@ export class ReportResponseDto {
   source: string;
   amount: number;
   @Exclude()
-  createdAt: Date;
+  created_at: Date;
   @Exclude()
-  updatedAt: Date;
-  type: any;
+  updated_at: Date;
+  type: string;
   @Exclude()
-  userId: string;
+  user_id: string;
 }
