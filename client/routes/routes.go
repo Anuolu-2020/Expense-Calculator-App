@@ -19,14 +19,17 @@ func (r *SetupRoute) New(newMux *http.ServeMux) {
 
 func (r SetupRoute) InitializeRoutes(handler handlers.Handler, SessionManager *scs.SessionManager) {
 	// main routes
-	r.mux.HandleFunc("GET /index", handler.Home)
+	r.mux.HandleFunc("/", middleware.CheckAuth(handler.NotFound, SessionManager))
+	r.mux.HandleFunc("GET /sign-in", handler.SignIn)
+	r.mux.HandleFunc("GET /sign-up", handler.SignUp)
 	r.mux.HandleFunc("GET /welcome", middleware.CheckAuth(handler.Welcome, SessionManager))
+	r.mux.HandleFunc("GET /dashboard", middleware.CheckAuth(handler.Dashboard, SessionManager))
 
 	apiRoutes := http.NewServeMux()
 
 	// Api Routes
-	apiRoutes.HandleFunc("POST /signup", handler.SignUp)
-	apiRoutes.HandleFunc("POST /signin", handler.SignIn)
+	apiRoutes.HandleFunc("POST /signup", handler.ApiSignUp)
+	apiRoutes.HandleFunc("POST /signin", handler.ApiSignIn)
 
 	r.mux.Handle("/api/", http.StripPrefix("/api", apiRoutes))
 }
