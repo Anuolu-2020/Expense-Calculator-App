@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
@@ -18,12 +19,8 @@ func New(DB *gorm.DB, Session *scs.SessionManager) Handler {
 	return Handler{DB, Session}
 }
 
-func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/signIn.html")
-}
-
-func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/signUp.html")
+func (h *Handler) Auth(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "templates/oauthPage.html")
 }
 
 func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
@@ -36,12 +33,15 @@ func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// Get user's username
-	username := ctx.Value("profileName")
+	// Get user's username and photo
+	sessionData := ctx.Value("sessionData").(string)
 
-	type templateData struct{ Username any }
-
-	data := templateData{Username: username}
+	data, err := pkg.DecodeSessionData(sessionData)
+	if err != nil {
+		log.Printf("Error occured while decoding session: %v", err)
+		http.Error(w, "An error occurred", http.StatusInternalServerError)
+		return
+	}
 
 	pkg.SendTemplate(w, "dashboard.html", data)
 }
