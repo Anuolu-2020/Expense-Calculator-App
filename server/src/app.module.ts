@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-//import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SummaryModule } from './summary/summary.module';
 import { ReportModule } from './report/report.module';
 import { ConfigModule } from '@nestjs/config';
@@ -12,7 +11,10 @@ import * as Joi from 'joi';
     ReportModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: Joi.object({ DATABASE_URL: Joi.string().required() }),
+      validationSchema: Joi.object({
+        DATABASE_URL: Joi.string().required(),
+        PORT: Joi.number().required(),
+      }),
       validationOptions: {
         abortEarly: true,
       },
