@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignIn</title>
+    <link rel="stylesheet" href="/static/css/tailwind.css" />
+    <script src="/static/htmx/htmx.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/client-side-templates.js"></script>
+    <script src="/static/htmx/nunjucks.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <section class="bg-white shadow flex justify-center items-center h-20">
+      <h1 class="text-3x1 font-bold text-indigo-500">EXPENSE CALCULATOR APP</h1>
+    </section>
+
+    <section
+      class="min-h-auto flex items-center justify-center bg-grey-200 py-12 px-12 sm:px-6 lg:px-8"
+    >
+      <section class="max-w-md w-full space-y-8">
+        <section>
+          <h2 class="text-center text-3x1 font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+        </section>
+        <form
+          class="mt-8 space-y-6"
+          hx-ext="json-enc"
+          hx-post="/api/signin"
+          hx-swap="none"
+        >
+          <div class="rounded-md shadow-sm space-y-6">
+            <div>
+              <label for="username" class="sr-only">Username: </label>
+              <input
+                type="text"
+                name="username"
+                class="apperance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-inidigo-500 focus:z-10 sm:text-sm"
+                placeholder="Username"
+                autocomplete="username"
+                required
+              />
+            </div>
+            <div>
+              <label for="password" name="password" class="sr-only">
+                Password:
+              </label>
+              <input
+                type="password"
+                for="password"
+                name="password"
+                autocomplete="current-password"
+                placeholder="Password"
+                class="apperance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-inidigo-500 focus:z-10 sm:text-sm"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <div>
+              <a
+                href="#"
+                class="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Forgot your password?
+              </a>
+            </div>
+            <div>
+              <a
+                href="/sign-up"
+                class="font-medium text-indigo-600 hover:text-indigo-500"
+                >Sign up instead</a
+              >
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Sign in
+              <img
+                class="htmx-indicator absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white"
+                src="/static/animations/tail-spin.svg"
+                alt=""
+              />
+            </button>
+          </div>
+        </form>
+      </section>
+    </section>
+  </body>
+</html>
