@@ -57,12 +57,11 @@ func methodColor(r *http.Request) string {
 	case "POST":
 		methodString = "\033[33m[POST]\033[0m"
 	case "PUT":
-		methodString = "\033[34m[POST]\033[0m"
-	case "RED":
-		methodString = "\033[31m[POST]\033[0m"
-
+		methodString = "\033[34m[PUT]\033[0m"
+	case "DELETE":
+		methodString = "\033[31m[DELETE]\033[0m"
 	default:
-		methodString = "\033[32m[POST]\033[0m"
+		methodString = "\033[32m[GET]\033[0m"
 	}
 
 	return methodString
