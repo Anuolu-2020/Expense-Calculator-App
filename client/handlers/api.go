@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -18,29 +19,90 @@ type User struct {
 	Password string `json:"password" validate:"required"`
 }
 
-// Sign up handler
-func (h Handler) ApiSignUp(w http.ResponseWriter, r *http.Request) {
-	var user User
+// Google endpoint handler
+func (h Handler) ApiGoogle(w http.ResponseWriter, r *http.Request) {
+	oauthState := pkg.GenerateStateOauthCookie(w)
 
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		http.Error(w, "Invalid Json Object", http.StatusBadRequest)
-		log.Println(err.Error())
+	url := pkg.OauthConfig.GoogleLoginConfig.AuthCodeURL(oauthState)
+
+	if r.Header.Get("Hx-Request") != "" {
+		w.Header().Set("Hx-Redirect", url)
+		w.Write([]byte("Redirect to dashboard"))
+	}
+
+	http.Redirect(w, r, url, http.StatusMovedPermanently)
+}
+
+// Google Calback handler
+func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
+	oauthState, _ := r.Cookie("oauthstate")
+
+	failureRedirect := ""
+
+	if r.FormValue("state") != oauthState.Value {
+		log.Println("[AUTH]: Oauth states do not match")
+		http.Redirect(w, r, failureRedirect, http.StatusTemporaryRedirect)
 		return
 	}
 
-	// Validate User Inputs
-	if ok, errors := pkg.ValidateInputs(user); !ok {
-		pkg.ValidationError(w, http.StatusUnprocessableEntity, errors)
+	oauthCode := r.FormValue("code")
+
+	// Get response from google
+	resp := getGoogleResponse(w, r, oauthCode)
+
+	// Read user data
+	defer resp.Body.Close()
+
+	var userData struct {
+		Email      string `json:"email"`
+		Username   string `json:"name"`
+		Password   string `json:"id"`
+		ProfilePic string `json:"picture"`
+	}
+
+	// Read response into struct
+	if err := json.NewDecoder(resp.Body).Decode(&userData); err != nil {
+		log.Println("failed to decode response: %w", err)
+		http.Redirect(w, r, failureRedirect, http.StatusTemporaryRedirect)
 		return
 	}
 
+	// Check if user exists
 	var userFound models.User
-	result := h.DB.Where("username = ?", user.Username).First(&userFound)
+	result := h.DB.Where("email = ?", userData.Email).First(&userFound)
 
-	// If a user is found
+	// If a user is found Sign in user
 	if result.RowsAffected > 0 {
-		pkg.SendErrorResponse(w, "User Already Exists", http.StatusBadRequest)
+		if err := bcrypt.CompareHashAndPassword([]byte(userFound.Password), []byte(userData.Password)); err != nil {
+			log.Printf("Error comparing password: %v", err)
+			pkg.SendErrorResponse(w, "Username or password not correct", http.StatusUnauthorized)
+			return
+		}
+
+		// Renew session token
+		h.Session.RenewToken(r.Context())
+
+		// Encode session data
+		buf, err := pkg.EncodeSessionData(userFound.Username, userFound.ProfilePic)
+		if err != nil {
+			log.Printf("Error encoding session: %v", err)
+			http.Error(w, "An error occcured", http.StatusInternalServerError)
+			return
+		}
+
+		// Store Session data
+		h.Session.Put(r.Context(), "userSession", buf.String())
+
+		// if r.Header.Get("Hx-Request") != "" {
+		// 	w.Header().Set("Hx-Redirect", "/dashboard")
+		//
+		// 	w.Write([]byte("Redirect to dashboard"))
+		//
+		// 	return
+		// }
+		//
+		http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
+
 		return
 	}
 
@@ -55,15 +117,21 @@ func (h Handler) ApiSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userData.Password), 10)
 	if err != nil {
 		pkg.SendErrorResponse(w, "An error occurred", http.StatusInternalServerError)
 		log.Println(err)
 		return
 	}
 
-	newUser := &models.User{Username: user.Username, Password: string(hashedPassword)}
+	newUser := &models.User{
+		Email:      userData.Email,
+		Username:   userData.Username,
+		Password:   string(hashedPassword),
+		ProfilePic: userData.ProfilePic,
+	}
 
+	// Create new user
 	if result := h.DB.Create(&newUser); result.Error != nil {
 		pkg.SendErrorResponse(
 			w,
@@ -74,70 +142,54 @@ func (h Handler) ApiSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.Session.Put(r.Context(), "username", newUser.Username)
-
-	newUser.Password = "" // Exclude password
-
-	if r.Header.Get("Hx-Request") != "" {
-		w.Header().Set("Hx-Redirect", "/dashboard")
-		w.Write([]byte("Redirect to dashboard"))
-
+	buf, err := pkg.EncodeSessionData(newUser.Username, newUser.ProfilePic)
+	if err != nil {
+		log.Printf("Error encoding session: %v", err)
+		http.Error(w, "An error occcured", http.StatusInternalServerError)
+		return
 	}
 
+	h.Session.Put(
+		r.Context(),
+		"userprofile",
+		buf.String(),
+	)
+
+	// if r.Header.Get("Hx-Request") != "" {
+	// 	w.Header().Set("Hx-Redirect", "/dashboard")
+	// 	w.Write([]byte("Redirect to dashboard"))
+	// 	return
+	// }
+	//
 	http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
 }
 
-// Sign In route
-func (h Handler) ApiSignIn(w http.ResponseWriter, r *http.Request) {
-	var user User
+// Get google response function
+func getGoogleResponse(
+	w http.ResponseWriter,
+	r *http.Request,
+	oauthCode string,
+) *http.Response {
+	failureRedirect := ""
 
-	err := json.NewDecoder(r.Body).Decode(&user)
+	googlecon := pkg.InitGoogle()
+
+	// Get token from google
+	token, err := googlecon.Exchange(context.Background(), oauthCode)
 	if err != nil {
-		pkg.SendErrorResponse(
-			w,
-			"An Error Occurred while Decoding Json",
-			http.StatusInternalServerError,
-		)
-		log.Print("An error occurred while encoding json %w", err)
-		return
+		log.Println("[FAIL]:", "Code-Token Exchange Failed")
+		http.Redirect(w, r, failureRedirect, http.StatusTemporaryRedirect)
+		return nil
 	}
 
-	if ok, errors := pkg.ValidateInputs(user); !ok {
-		pkg.ValidationError(w, http.StatusUnprocessableEntity, errors)
-		return
+	resp, err := http.Get(
+		"https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken,
+	)
+	if err != nil {
+		log.Println("User Data Fetch Failed")
+		http.Redirect(w, r, failureRedirect, http.StatusTemporaryRedirect)
+		return nil
 	}
 
-	var userFound models.User
-	result := h.DB.Where("username = ?", user.Username).First(&userFound)
-
-	if result.RowsAffected == 0 {
-		pkg.SendErrorResponse(w, "User Not Found", http.StatusNotFound)
-		return
-	}
-
-	if result.Error != nil {
-		log.Print(result.Error)
-		pkg.SendErrorResponse(w, "An error occurred", http.StatusInternalServerError)
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(userFound.Password), []byte(user.Password)); err != nil {
-		log.Printf("Error comparing password: %v", err)
-		pkg.SendErrorResponse(w, "Username or password not correct", http.StatusUnauthorized)
-		return
-	}
-
-	h.Session.RenewToken(r.Context())
-
-	h.Session.Put(r.Context(), "username", user.Username)
-
-	userFound.Password = ""
-
-	if r.Header.Get("Hx-Request") != "" {
-		w.Header().Set("Hx-Redirect", "/dashboard")
-		w.Write([]byte("Redirect to dashboard"))
-
-	}
-
-	http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
+	return resp
 }
