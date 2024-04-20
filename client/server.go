@@ -10,6 +10,7 @@ import (
 	"github.com/Anuolu-2020/Expense-Calculator-App/db"
 	"github.com/Anuolu-2020/Expense-Calculator-App/handlers"
 	"github.com/Anuolu-2020/Expense-Calculator-App/middleware"
+	"github.com/Anuolu-2020/Expense-Calculator-App/pkg"
 	"github.com/Anuolu-2020/Expense-Calculator-App/routes"
 )
 
@@ -38,6 +39,9 @@ func main() {
 
 	// Initailize Session
 	sessionManager := middleware.InitSession()
+
+	// Initialize Google Config
+	pkg.InitGoogle()
 
 	// Initialize Handlers
 	h := handlers.New(DB, sessionManager)
