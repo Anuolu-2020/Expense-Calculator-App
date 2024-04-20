@@ -83,7 +83,11 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		h.Session.RenewToken(r.Context())
 
 		// Encode session data
-		buf, err := pkg.EncodeSessionData(userFound.Username, userFound.ProfilePic)
+		buf, err := pkg.EncodeSessionData(
+			userFound.ID.String(),
+			userFound.Username,
+			userFound.ProfilePic,
+		)
 		if err != nil {
 			log.Printf("Error encoding session: %v", err)
 			http.Error(w, "An error occcured", http.StatusInternalServerError)
@@ -142,7 +146,7 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buf, err := pkg.EncodeSessionData(newUser.Username, newUser.ProfilePic)
+	buf, err := pkg.EncodeSessionData(newUser.ID.String(), newUser.Username, newUser.ProfilePic)
 	if err != nil {
 		log.Printf("Error encoding session: %v", err)
 		http.Error(w, "An error occcured", http.StatusInternalServerError)
@@ -151,7 +155,7 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	h.Session.Put(
 		r.Context(),
-		"userprofile",
+		"userSession",
 		buf.String(),
 	)
 
