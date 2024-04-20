@@ -17,12 +17,18 @@ interface UpdateReport {
 export class ReportService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async getAllReports(type: ReportType): Promise<ReportResponseDto[]> {
+  async getAllReports(
+    type: ReportType,
+  ): Promise<ReportResponseDto[] | { message: string }> {
     const report = await this.prisma.reports.findMany({
       where: {
         type,
       },
     });
+
+    if (report.length === 0) {
+      return { message: 'No Report Record Yet' };
+    }
 
     return report;
   }
@@ -30,13 +36,18 @@ export class ReportService {
   async getReportById(
     type: ReportType,
     id: string,
-  ): Promise<ReportResponseDto[]> {
+  ): Promise<ReportResponseDto[] | { message: string }> {
     const report = await this.prisma.reports.findMany({
       where: {
         type,
         user_id: id,
       },
     });
+
+    if (report.length === 0) {
+      return { message: 'No Report Records Yet' };
+    }
+
     return report;
   }
 

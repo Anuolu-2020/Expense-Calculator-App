@@ -10,6 +10,8 @@ async function bootstrap() {
 
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
+  app.enableCors({ origin: '*', credentials: true });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -22,8 +24,10 @@ async function bootstrap() {
 
   app.use(morgan('dev'));
 
+  const PORT = process.env.PORT;
+
   console.log(`listening on port ${3000}`);
-  await app.listen(3000);
+  await app.listen(PORT);
 
   const server = app.getHttpServer();
   const router = server._events.request._router;

@@ -11,20 +11,26 @@ export class SummaryService {
       id,
     );
 
-    const totalExpense = getTotalExpense.reduce(
-      (sum: number, report: Report) => sum + report.amount,
-      0,
-    );
+    let totalExpense = 0;
+    if (Array.isArray(getTotalExpense)) {
+      totalExpense = getTotalExpense.reduce(
+        (sum: number, report: Report) => sum + report.amount,
+        0,
+      );
+    }
 
     const getTotalIncome = await this.reportService.getReportById(
       ReportType.income,
       id,
     );
 
-    const totalIncome = getTotalIncome.reduce(
-      (sum: number, report: Report) => sum + report.amount,
-      0,
-    );
+    let totalIncome = 0;
+    if (Array.isArray(getTotalIncome)) {
+      totalIncome = getTotalIncome.reduce(
+        (sum: number, report: Report) => sum + report.amount,
+        0,
+      );
+    }
 
     return {
       totalIncome,
