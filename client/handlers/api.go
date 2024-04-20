@@ -19,7 +19,7 @@ type User struct {
 }
 
 // Sign up handler
-func (h Handler) SignUp(w http.ResponseWriter, r *http.Request) {
+func (h Handler) ApiSignUp(w http.ResponseWriter, r *http.Request) {
 	var user User
 
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -78,11 +78,17 @@ func (h Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	newUser.Password = "" // Exclude password
 
-	pkg.SendResponse(w, "User created successfully", newUser, http.StatusCreated)
+	if r.Header.Get("Hx-Request") != "" {
+		w.Header().Set("Hx-Redirect", "/dashboard")
+		w.Write([]byte("Redirect to dashboard"))
+
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
 }
 
 // Sign In route
-func (h Handler) SignIn(w http.ResponseWriter, r *http.Request) {
+func (h Handler) ApiSignIn(w http.ResponseWriter, r *http.Request) {
 	var user User
 
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -127,5 +133,11 @@ func (h Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	userFound.Password = ""
 
-	pkg.SendResponse(w, "User signed in successfully", userFound, http.StatusOK)
+	if r.Header.Get("Hx-Request") != "" {
+		w.Header().Set("Hx-Redirect", "/dashboard")
+		w.Write([]byte("Redirect to dashboard"))
+
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
 }
