@@ -32,8 +32,8 @@
     >
       <div class="max-w-md w-full space-y-8">
         <form
-          class="mt-1 space-y-6"
-          id="expense-form"
+          id="{{ .UserId }}"
+          class="mt-1 space-y-6 expense-form"
           hx-ext="json-enc"
           hx-post="/api/add-income-expense"
           hx-swap="outerHTML"
@@ -91,7 +91,7 @@
           </div>
         </form>
         <div class="text-indigo font-medium">Reports</div>
-        <div id="expense-list" class="mt-8 space-y-4" hx-get="">
+        <div id="expense-list" class="mt-8 space-y-4 " hx-get="">
           <!-- Expense items will be dynamically added here -->
         </div>
       </div>
