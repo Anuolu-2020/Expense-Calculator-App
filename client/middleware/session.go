@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"database/sql"
+	"context"
 	"log"
 	"time"
 
-	"github.com/alexedwards/scs/cockroachdbstore"
+	"github.com/alexedwards/scs/pgxstore"
 	"github.com/alexedwards/scs/v2"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/Anuolu-2020/Expense-Calculator-App/pkg"
 )
@@ -18,13 +18,13 @@ func InitSession() *scs.SessionManager {
 	env := pkg.Env{}
 
 	// Establish connection to CockroachDB.
-	db, err := sql.Open("postgres", env.GetSessionDBUrl())
+	db, err := pgxpool.New(context.Background(), env.GetSessionDBUrl())
 	if err != nil {
 		log.Println("Error connecting to session store")
 		log.Fatal(err)
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS sessions (
+	_, err = db.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS sessions (
 		token TEXT PRIMARY KEY,
 		data BYTEA NOT NULL,
 		expiry TIMESTAMPTZ NOT NULL
@@ -34,15 +34,28 @@ func InitSession() *scs.SessionManager {
 	}
 
 	// Create an index on expiry column
-	_, err = db.Exec(`CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions (expiry);`)
+	_, err = db.Exec(
+		context.Background(),
+		`CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions (expiry);`,
+	)
 	if err != nil {
 		log.Fatal("error creating index: ", err)
 	}
 
+	// Clear db
+	/*
+		log.Println("Clearing session db...")
+		_, err = db.Exec(`DELETE FROM sessions`)
+		if err != nil {
+			log.Fatal("error clearing db: ", err)
+		}
+		log.Println("Successfully cleared session db")
+	*/
+
 	sessionManager = scs.New()
 	sessionManager.Lifetime = 24 * time.Hour
 	sessionManager.Cookie.Secure = false
-	sessionManager.Store = cockroachdbstore.New(db)
+	sessionManager.Store = pgxstore.New(db)
 	log.Println("Connected to session store successfully")
 
 	return sessionManager
