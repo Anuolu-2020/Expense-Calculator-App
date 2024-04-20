@@ -30,7 +30,7 @@ func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
-func (h *Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
+func (h Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Get user's username and photo
