@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"log"
+	"context"
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
@@ -10,12 +10,15 @@ import (
 func CheckAuth(next http.HandlerFunc, m *scs.SessionManager) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie := m.GetString(r.Context(), "username")
-		log.Printf("This is the cookie: %v", cookie)
+
 		if !m.Exists(r.Context(), "username") {
-			http.Redirect(w, r, "/api/signin", http.StatusPermanentRedirect)
+			http.Redirect(w, r, "/sign-in", http.StatusFound)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Pass username to next handler e.g dashboard
+		ctx := context.WithValue(r.Context(), "profileName", cookie)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
