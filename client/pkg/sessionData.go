@@ -7,17 +7,19 @@ import (
 )
 
 type SessionData struct {
+	UserId   string
 	Username string
 	Photo    string
 }
 
 func EncodeSessionData(
+	UserId string,
 	Username string,
 	Photo string,
 ) (bytes.Buffer, error) {
 	gob.Register(&SessionData{})
 
-	data := SessionData{Username, Photo}
+	data := SessionData{UserId, Username, Photo}
 
 	// Initialize a buffer to hold the gob-encoded data.
 	var buf bytes.Buffer
