@@ -30,13 +30,14 @@
     <section
       class="min-h-screen flex items-start justify-center bg-gray-200 py-12 px-4 sm:px-6 lg:px-8"
     >
-      <div class="max-w-md w-full space-y-8">
+      <div class="max-w-md w-full space-y-8" hx-ext="client-side-templates">
         <form
           id="{{ .UserId }}"
           class="mt-1 space-y-6 expense-form"
           hx-ext="json-enc"
-          hx-post="/api/add-income-expense"
-          hx-swap="outerHTML"
+          hx-post="https://expense-calculator-api-j642.onrender.com/api/v1/report/"
+          hx-on::config-request="event.detail.path = this.name[`type`] + `/` + this.id"
+          nunjucks-template="expense-list"
         >
           <div class="rounded-md shadow-sm space-y-6">
             <div>
@@ -91,9 +92,9 @@
           </div>
         </form>
         <div class="text-indigo font-medium">Reports</div>
-        <div id="expense-list" class="mt-8 space-y-4 " hx-get="">
+        <template id="expense-list" class="mt-8 space-y-4" hx-get="">
           <!-- Expense items will be dynamically added here -->
-        </div>
+        </template>
       </div>
     </section>
 

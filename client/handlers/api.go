@@ -40,7 +40,7 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	failureRedirect := ""
 
 	if r.FormValue("state") != oauthState.Value {
-		log.Println("[AUTH]: Oauth states do not match")
+		log.Println("Oauth states do not match")
 		http.Redirect(w, r, failureRedirect, http.StatusTemporaryRedirect)
 		return
 	}
@@ -71,13 +71,16 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	var userFound models.User
 	result := h.DB.Where("email = ?", userData.Email).First(&userFound)
 
-	// If a user is found Sign in user
+	// If a user is found, Sign in user
 	if result.RowsAffected > 0 {
 		if err := bcrypt.CompareHashAndPassword([]byte(userFound.Password), []byte(userData.Password)); err != nil {
 			log.Printf("Error comparing password: %v", err)
 			pkg.SendErrorResponse(w, "Username or password not correct", http.StatusUnauthorized)
 			return
 		}
+
+		// Update user profile pic
+		h.DB.Update("profile_pic = ?", userFound.ProfilePic).First(&userFound)
 
 		// Renew session token
 		h.Session.RenewToken(r.Context())
