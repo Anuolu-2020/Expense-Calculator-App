@@ -6,7 +6,7 @@ import { ReportService, Report } from 'src/report/report.service';
 export class SummaryService {
   constructor(private readonly reportService: ReportService) { }
   async calculateSummary(id: string) {
-    const getTotalExpense = await this.reportService.getReportById(
+    const getTotalExpense = await this.reportService.getReportTypeByUserId(
       ReportType.expense,
       id,
     );
@@ -19,7 +19,7 @@ export class SummaryService {
       );
     }
 
-    const getTotalIncome = await this.reportService.getReportById(
+    const getTotalIncome = await this.reportService.getReportTypeByUserId(
       ReportType.income,
       id,
     );
