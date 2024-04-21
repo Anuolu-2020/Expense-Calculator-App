@@ -18,35 +18,47 @@ import {
   ReportType,
 } from '../dtos/report.dto';
 
-@Controller('report/:type')
+@Controller('report')
 export class ReportController {
   constructor(private readonly reportService: ReportService) { }
-  @Get()
-  async getAllReports(
+  @Get(':userId')
+  async getAllReportsByUserId(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<any> {
+    const report = await this.reportService.getAllReportsByUserId(userId);
+
+    return { results: report };
+  }
+
+  @Get(':type')
+  async getAllReportsType(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
   ): Promise<any> {
     const reportType =
       type === 'income' ? ReportType.income : ReportType.expense;
 
-    const report = await this.reportService.getAllReports(reportType);
+    const report = await this.reportService.getAllReportsType(reportType);
 
     return { results: report };
   }
 
-  @Get(':userId')
-  async getReportById(
+  @Get(':type/:userId')
+  async getReportTypeByUserId(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
     @Param('userId', ParseUUIDPipe) id: string,
   ): Promise<any> {
     const reportType =
       type === 'income' ? ReportType.income : ReportType.expense;
 
-    const report = await this.reportService.getReportById(reportType, id);
+    const report = await this.reportService.getReportTypeByUserId(
+      reportType,
+      id,
+    );
 
     return { results: report };
   }
 
-  @Post(':userId')
+  @Post(':type/:userId')
   async createReport(
     @Body() { source, amount }: CreateReportDto,
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
@@ -62,7 +74,7 @@ export class ReportController {
     });
   }
 
-  @Put(':id')
+  @Put(':type/:id')
   async updateReportById(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,
     @Param('id', ParseUUIDPipe) id: string,
