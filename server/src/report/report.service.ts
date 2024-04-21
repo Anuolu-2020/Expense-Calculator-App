@@ -16,8 +16,15 @@ interface UpdateReport {
 @Injectable()
 export class ReportService {
   constructor(private readonly prisma: PrismaService) { }
+  async getAllReportsByUserId(userId: string): Promise<any> {
+    const report = await this.prisma.reports.findMany({
+      where: { user_id: userId },
+    });
 
-  async getAllReports(type: ReportType): Promise<ReportResponseDto[]> {
+    return report;
+  }
+
+  async getAllReportsType(type: ReportType): Promise<ReportResponseDto[]> {
     const report = await this.prisma.reports.findMany({
       where: {
         type,
@@ -31,7 +38,7 @@ export class ReportService {
     return report;
   }
 
-  async getReportById(
+  async getReportTypeByUserId(
     type: ReportType,
     id: string,
   ): Promise<ReportResponseDto[]> {
