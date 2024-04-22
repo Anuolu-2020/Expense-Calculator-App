@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -34,7 +33,6 @@ type TemplateData struct {
 	UserId   string
 	Username string
 	Photo    string
-	Results  []Results
 }
 
 func New(DB *gorm.DB, Session *scs.SessionManager) Handler {
@@ -65,29 +63,10 @@ func (h Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Get(
-		"https://expense-calculator-api-j642.onrender.com/api/v1/report/" + userData.UserId,
-	)
-	if err != nil {
-		log.Printf("Error occured while fetching data: %v", err)
-		http.Error(w, "An error occurred", http.StatusInternalServerError)
-		return
-	}
-
-	defer resp.Body.Close()
-
-	var response Response
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		log.Printf("Error occured while decoding data: %v", err)
-		http.Error(w, "An error occurred", http.StatusInternalServerError)
-		return
-	}
-
 	data := TemplateData{
 		UserId:   userData.UserId,
 		Username: userData.Username,
 		Photo:    userData.Photo,
-		Results:  response.Results,
 	}
 
 	pkg.SendTemplate(w, "dashboard.html", data)
