@@ -7,8 +7,12 @@
     <link rel="stylesheet" href="/static/css/tailwind.css" />
     <script src="/static/htmx/htmx.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/client-side-templates.js"></script>
-    <script src="/static/htmx/nunjucks.js"></script>
+    <style>
+      li.htmx-swapping input {
+        opacity: 0;
+        transition: opacity 1s ease-out;
+      }
+    </style>
   </head>
 
   <body class="bg-gray-100">
@@ -28,7 +32,7 @@
     </section>
 
     <section
-      class="min-h-screen flex items-start justify-center bg-gray-200 py-12 px-4 sm:px-6 lg:px-8"
+      class="min-h-screen justify-center flex flex-col items-center bg-gray-200 pb-12 pt-6 px-4 sm:px-6 lg:px-8"
     >
       <div class="max-w-md w-full space-y-8" hx-ext="client-side-templates">
         <form
@@ -84,74 +88,82 @@
             >
               Add
               <img
-                class="htmx-indicator absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white"
+                class="htmx-indicator absolute left-3 transform -translate-y-1/2 w-5 h-5 text-white"
                 src="/static/animations/tail-spin.svg"
                 alt=""
               />
             </button>
           </div>
         </form>
-        <div id="{{ .UserId }}">
-          <h2 class="text-lg font-bold mb-2 text-center text-indigo-600">
-            Reports
-          </h2>
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th
-                  class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Type
-                </th>
-                <th
-                  class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Source
-                </th>
-                <th
-                  class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Amount
-                </th>
-                <th class="px-6 py-3 bg-gray-50"></th>
-              </tr>
-            </thead>
-            <tbody id="expense-list" class="bg-white divide-y divide-gray-200">
-              {{ range .Results }}
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">{{ .Type }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ .Source }}</td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ .Amount }}</td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                >
-                  <button
-                    id="{{ .ID }}"
-                    class="text-indigo-600 hover:text-indigo-500 mr-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    id="{{ .ID }}"
-                    class="text-red-600 hover:text-red-500"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-              {{ else }}
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap" colspan="4">
-                  No Reports Yet
-                </td>
-              </tr>
-              {{ end }}
-            </tbody>
-          </table>
-        </div>
+      </div>
+
+      <div id="{{ .UserId }}">
+        <h2 class="text-lg font-bold mb-2 mt-4 text-center text-indigo-600">
+          Reports
+        </h2>
+        <ul
+          id="expense-list"
+          class="w-fit bg-white divide-y divide-gray-200 relative"
+          hx-get="/api/reports/{{ .UserId }}"
+          hx-trigger="load"
+          hx-swap="beforeend"
+          hx-target="#reports"
+        >
+          <li class="flex justify-between px-6 py-3 bg-gray-50">
+            <span class="w-auto font-medium text-gray-500">Type</span>
+            <span class="w-auto font-medium text-gray-500">Source</span>
+            <span class="w-auto font-medium text-gray-500">Amount</span>
+            <span class="w-auto font-medium text-gray-500 text-right"
+              >Actions</span
+            >
+          </li>
+          <img
+            class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 z-10"
+            src="/static/animations/tail-spin.svg"
+            alt=""
+          />
+          <div id="reports"></div>
+        </ul>
       </div>
     </section>
+    <script>
+      htmx.onLoad(function (content) {
+        // Add event listener to all edit buttons
+        content.querySelectorAll(".edit-button").forEach((button) => {
+          button.addEventListener("click", function () {
+            // Find the parent list item of the clicked edit button
+            const listItem = this.closest("li");
 
-    <script></script>
+            // Toggle visibility of edit and save buttons
+            listItem.querySelector(".edit-button").style.display = "none";
+            listItem.querySelector(".save-button").style.display =
+              "inline-block";
+
+            // Enable editing by removing readonly attribute from input fields
+            listItem.querySelectorAll("input").forEach((input) => {
+              input.removeAttribute("readonly");
+            });
+          });
+        });
+
+        // Add event listener to all save buttons
+        content.querySelectorAll(".save-button").forEach((button) => {
+          button.addEventListener("click", function () {
+            // Find the parent list item of the clicked save button
+            const listItem = this.closest("li");
+
+            // Toggle visibility of save and edit buttons
+            listItem.querySelector(".save-button").style.display = "none";
+            listItem.querySelector(".edit-button").style.display =
+              "inline-block";
+
+            // Disable editing by adding readonly attribute to input fields
+            listItem.querySelectorAll("input").forEach((input) => {
+              input.setAttribute("readonly", true);
+            });
+          });
+        });
+      });
+    </script>
   </body>
 </html>
