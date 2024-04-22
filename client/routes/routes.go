@@ -30,7 +30,7 @@ func (r SetupRoute) InitializeRoutes(handler handlers.Handler, SessionManager *s
 	apiRoutes.HandleFunc("POST /google", handler.ApiGoogle)
 	apiRoutes.HandleFunc("GET /google/callback", handler.ApiGoogleCallback)
 	apiRoutes.HandleFunc("GET /cleardb", handler.ClearDB)
-	//	apiRoutes.HandleFunc("POST /signin", handler.ApiSignIn)
+	apiRoutes.HandleFunc("GET /reports/{userId}", handler.GetUserReports)
 
 	r.mux.Handle("/api/", http.StripPrefix("/api", apiRoutes))
 }
