@@ -30,6 +30,30 @@ export class ReportController {
     return { results: report };
   }
 
+  @Get(':userId/:id')
+  async getAReport(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    const report = await this.reportService.getAReport(userId, id);
+
+    return report;
+  }
+
+  @Put(':userId/:id')
+  async updateAReport(
+    @Body() { source, amount }: CreateReportDto,
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    const report = await this.reportService.updateAReport(userId, id, {
+      source,
+      amount,
+    });
+
+    return report;
+  }
+
   @Get(':type')
   async getAllReportsType(
     @Param('type', new ParseEnumPipe(ReportType)) type: string,

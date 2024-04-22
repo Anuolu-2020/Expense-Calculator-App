@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Body, Injectable, NotFoundException } from '@nestjs/common';
 import { ReportType } from 'src/dtos/report.dto';
 import { ReportResponseDto } from '../dtos/report.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -16,6 +16,23 @@ interface UpdateReport {
 @Injectable()
 export class ReportService {
   constructor(private readonly prisma: PrismaService) { }
+  async getAReport(userId: string, id: string) {
+    const report = await this.prisma.reports.findFirst({
+      where: { user_id: userId, id },
+    });
+
+    return report;
+  }
+
+  async updateAReport(userId: string, id: string, data: UpdateReport) {
+    const report = await this.prisma.reports.update({
+      where: { user_id: userId, id },
+      data,
+    });
+
+    return report;
+  }
+
   async getAllReportsByUserId(userId: string): Promise<any> {
     const report = await this.prisma.reports.findMany({
       where: { user_id: userId },
