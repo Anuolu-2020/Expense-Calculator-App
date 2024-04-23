@@ -37,11 +37,9 @@ func (h Handler) ApiGoogle(w http.ResponseWriter, r *http.Request) {
 func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	oauthState, _ := r.Cookie("oauthstate")
 
-	failureRedirect := ""
-
 	if r.FormValue("state") != oauthState.Value {
 		log.Println("Oauth states do not match")
-		http.Redirect(w, r, failureRedirect, http.StatusTemporaryRedirect)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -63,7 +61,7 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	// Read response into struct
 	if err := json.NewDecoder(resp.Body).Decode(&userData); err != nil {
 		log.Println("failed to decode response: %w", err)
-		http.Redirect(w, r, failureRedirect, http.StatusTemporaryRedirect)
+		pkg.ServeErrorPage(w, r) // Server error page
 		return
 	}
 
@@ -93,21 +91,13 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		)
 		if err != nil {
 			log.Printf("Error encoding session: %v", err)
-			http.Error(w, "An error occcured", http.StatusInternalServerError)
+			pkg.ServeErrorPage(w, r)
 			return
 		}
 
 		// Store Session data
 		h.Session.Put(r.Context(), "userSession", buf.String())
 
-		// if r.Header.Get("Hx-Request") != "" {
-		// 	w.Header().Set("Hx-Redirect", "/dashboard")
-		//
-		// 	w.Write([]byte("Redirect to dashboard"))
-		//
-		// 	return
-		// }
-		//
 		http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
 
 		return
@@ -115,18 +105,14 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	// If its a db error
 	if result.Error != gorm.ErrRecordNotFound {
-		pkg.SendErrorResponse(
-			w,
-			"An Error Occurred",
-			http.StatusInternalServerError,
-		)
+		pkg.ServeErrorPage(w, r)
 		log.Println(result.Error)
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userData.Password), 10)
 	if err != nil {
-		pkg.SendErrorResponse(w, "An error occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		log.Println(err)
 		return
 	}
@@ -140,11 +126,7 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	// Create new user
 	if result := h.DB.Create(&newUser); result.Error != nil {
-		pkg.SendErrorResponse(
-			w,
-			"An Error Occurred While Creating User",
-			http.StatusInternalServerError,
-		)
+		pkg.ServeErrorPage(w, r)
 		fmt.Println(result.Error)
 		return
 	}
@@ -152,7 +134,7 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	buf, err := pkg.EncodeSessionData(newUser.ID.String(), newUser.Username, newUser.ProfilePic)
 	if err != nil {
 		log.Printf("Error encoding session: %v", err)
-		http.Error(w, "An error occcured", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -162,12 +144,6 @@ func (h Handler) ApiGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		buf.String(),
 	)
 
-	// if r.Header.Get("Hx-Request") != "" {
-	// 	w.Header().Set("Hx-Redirect", "/dashboard")
-	// 	w.Write([]byte("Redirect to dashboard"))
-	// 	return
-	// }
-	//
 	http.Redirect(w, r, "/dashboard", http.StatusMovedPermanently)
 }
 
