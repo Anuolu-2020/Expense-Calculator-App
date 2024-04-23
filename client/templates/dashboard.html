@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/css/tailwind.css" />
     <script src="/static/htmx/htmx.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
     <style>
       li.htmx-swapping input {
         opacity: 0;
@@ -41,7 +42,6 @@
           hx-ext="json-enc"
           hx-post="https://expense-calculator-api-j642.onrender.com/api/v1/report/"
           hx-on::config-request="event.detail.path = this.name[`type`] + `/` + this.id"
-          nunjucks-template="expense-list"
         >
           <div class="rounded-md shadow-sm space-y-6">
             <div>
@@ -108,6 +108,8 @@
           hx-trigger="load"
           hx-swap="beforeend"
           hx-target="#reports"
+          hx-indicator="#spinner"
+          hx-ext="response-targets"
         >
           <li class="flex justify-between px-6 py-3 bg-gray-50">
             <span class="w-auto font-medium text-gray-500">Type</span>
@@ -117,12 +119,20 @@
               >Actions</span
             >
           </li>
-          <img
-            class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 z-10"
-            src="/static/animations/tail-spin.svg"
-            alt=""
-          />
-          <div id="reports"></div>
+          <li class="flex justify-center items-center">
+            <img
+              id="spinner"
+              class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 z-10"
+              src="/static/animations/Dual-Ring-Spinner.svg"
+              alt="Loading Spinner"
+            />
+          </li>
+          <div
+            id="reports"
+            hx-confirm="Are you sure?"
+            hx-target-204="closest li"
+            hx-swap="outerHTML"
+          ></div>
         </ul>
       </div>
     </section>
