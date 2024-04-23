@@ -1,14 +1,6 @@
 {{ range .Results }}
-<li
-  class="px-2 py-4 flex justify-evenly items-center"
-  hx-confirm="Are you sure?"
->
-  <input
-    type="text"
-    class="px-2 py-1 border rounded-md"
-    value="{{ .Type }}"
-    readonly
-  />
+<li class="i{{ .ID }} px-2 py-4 flex justify-evenly items-center">
+  <div class="px-2 py-1 border rounded-md">{{ .Type }}</div>
   <input
     type="text"
     name="source"
@@ -23,14 +15,16 @@
     value="{{ .Amount }}"
     readonly
   />
-  <div class="flex justify-self-auto" hx-target="previous li, this">
+  <div class="flex justify-self-auto">
     <button class="edit-button text-indigo-600 hover:text-indigo-500 mr-2">
       Edit
     </button>
     <button
       class="save-button text-indigo-600 hover:text-indigo-500 mr-2"
-      hx-put="/api/v1/report/{{ .Type }}/{{ .ID }}"
+      hx-put="https://expense-calculator-api-j642.onrender.com/api/v1/report/{{ .UserId }}/{{ .ID }}"
+      hx-include=".i{{ .ID }} input"
       style="display: none"
+      hx-swap="none"
     >
       Save
     </button>
@@ -38,8 +32,6 @@
     <button
       class="text-red-600 hover:text-red-500 delete-button"
       hx-delete="https://expense-calculator-api-j642.onrender.com/api/v1/report/{{.ID}}"
-      hx-target="previous li"
-      hx-swap="outerHTML swap:1s"
     >
       Delete
     </button>
