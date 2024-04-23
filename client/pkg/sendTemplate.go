@@ -23,20 +23,20 @@ func SendTemplate(w http.ResponseWriter, path string, body interface{}) {
 	path, err := readPath(path)
 	log.Println(path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Fatal(err.Error())
 		return
 	}
 
 	tmpl, err := template.ParseFiles(path)
 	if err != nil {
-		log.Println("Error reading template file")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error reading template file: %v", err)
 		return
 	}
 
 	err = tmpl.Execute(w, body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error Executing Error: %v", err)
+		http.Error(w, "An Error Occurred", http.StatusInternalServerError)
 		return
 	}
 }
