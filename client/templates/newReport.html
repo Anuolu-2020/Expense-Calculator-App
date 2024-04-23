@@ -1,0 +1,38 @@
+<li class="i{{ .ID }} px-2 py-4 flex justify-evenly items-center">
+  <div class="px-2 py-1 border rounded-md">{{ .Type }}</div>
+  <input
+    type="text"
+    name="source"
+    class="px-2 py-1 border rounded-md"
+    value="{{ .Source }}"
+    readonly
+  />
+  <input
+    type="text"
+    name="amount"
+    class="px-2 py-1 border rounded-md"
+    value="{{ .Amount }}"
+    readonly
+  />
+  <div class="flex justify-self-auto">
+    <button class="edit-button text-indigo-600 hover:text-indigo-500 mr-2">
+      Edit
+    </button>
+    <button
+      class="save-button text-indigo-600 hover:text-indigo-500 mr-2"
+      hx-put="https://expense-calculator-api-j642.onrender.com/api/v1/report/{{ .UserId }}/{{ .ID }}"
+      hx-include=".i{{ .ID }} input"
+      style="display: none"
+      hx-swap="none"
+    >
+      Save
+    </button>
+
+    <button
+      class="text-red-600 hover:text-red-500 delete-button"
+      hx-delete="https://expense-calculator-api-j642.onrender.com/api/v1/report/{{.ID}}"
+    >
+      Delete
+    </button>
+  </div>
+</li>
