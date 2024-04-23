@@ -1,4 +1,4 @@
-import { Body, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ReportType } from 'src/dtos/report.dto';
 import { ReportResponseDto } from '../dtos/report.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -24,10 +24,14 @@ export class ReportService {
     return report;
   }
 
-  async updateAReport(userId: string, id: string, data: UpdateReport) {
+  async updateAReport(
+    userId: string,
+    id: string,
+    { source, amount }: UpdateReport,
+  ) {
     const report = await this.prisma.reports.update({
       where: { user_id: userId, id },
-      data,
+      data: { source, amount },
     });
 
     return report;

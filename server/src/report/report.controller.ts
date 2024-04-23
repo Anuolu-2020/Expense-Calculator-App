@@ -42,14 +42,11 @@ export class ReportController {
 
   @Put(':userId/:id')
   async updateAReport(
-    @Body() { source, amount }: CreateReportDto,
+    @Body() data: UpdateReportDto,
     @Param('userId', ParseUUIDPipe) userId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
-    const report = await this.reportService.updateAReport(userId, id, {
-      source,
-      amount,
-    });
+    const report = await this.reportService.updateAReport(userId, id, data);
 
     return report;
   }
