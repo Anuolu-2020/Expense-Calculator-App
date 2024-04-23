@@ -20,7 +20,7 @@ func (r *SetupRoute) New(newMux *http.ServeMux) {
 func (r SetupRoute) InitializeRoutes(handler handlers.Handler, SessionManager *scs.SessionManager) {
 	// main routes
 	r.mux.HandleFunc("/", middleware.CheckAuth(handler.NotFound, SessionManager))
-	r.mux.HandleFunc("GET /auth", handler.Auth)
+	r.mux.HandleFunc("GET /auth", middleware.IsLoggedIn(handler.Auth, SessionManager))
 	r.mux.HandleFunc("GET /welcome", middleware.CheckAuth(handler.Welcome, SessionManager))
 	r.mux.HandleFunc("GET /dashboard", middleware.CheckAuth(handler.Dashboard, SessionManager))
 
@@ -31,6 +31,7 @@ func (r SetupRoute) InitializeRoutes(handler handlers.Handler, SessionManager *s
 	apiRoutes.HandleFunc("GET /google/callback", handler.ApiGoogleCallback)
 	apiRoutes.HandleFunc("GET /cleardb", handler.ClearDB)
 	apiRoutes.HandleFunc("GET /reports/{userId}", handler.GetUserReports)
+	apiRoutes.HandleFunc("POST /createUserReport/{userId}", handler.CreateUserReport)
 
 	r.mux.Handle("/api/", http.StripPrefix("/api", apiRoutes))
 }
