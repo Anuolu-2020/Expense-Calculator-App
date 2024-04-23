@@ -38,3 +38,15 @@ func CheckAuth(next http.HandlerFunc, m *scs.SessionManager) http.HandlerFunc {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+func IsLoggedIn(next http.HandlerFunc, m *scs.SessionManager) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if user is logged in
+		if exist := m.Exists(r.Context(), "userSession"); exist {
+			http.Redirect(w, r, "/dashboard", http.StatusFound)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
