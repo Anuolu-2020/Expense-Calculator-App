@@ -14,10 +14,11 @@
         transition: opacity 1s ease-out;
       }
     </style>
-    <!-- hx-on::config-request="event.detail.path = this.name[`type`] + `/` + -->
-    <!-- this.id" -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
+    />
   </head>
-
   <body class="bg-gray-100">
     <section
       class="bg-white shadow flex justify-between items-center h-20 px-8"
@@ -33,7 +34,6 @@
         <span class="text-gray-700">{{ .Username }}</span>
       </div>
     </section>
-
     <section
       class="min-h-screen justify-center flex flex-col items-center bg-gray-200 pb-12 pt-6 px-4 sm:px-6 lg:px-8"
     >
@@ -46,6 +46,7 @@
           hx-target="#reports"
           hx-swap="beforeend"
           hx-confirm="Are you sure?"
+          hx-on::after-request="createdReport()"
         >
           <div class="rounded-md shadow-sm space-y-6">
             <div>
@@ -113,8 +114,10 @@
           hx-trigger="load"
           hx-swap="beforeend"
           hx-target="#reports"
+          hx-request='\"timeout\":100'
           hx-indicator="#spinner"
           hx-ext="response-targets"
+          hx-on::after-request="fetchedReports()"
         >
           <li class="flex justify-between px-6 py-3 bg-gray-50">
             <span class="w-auto font-medium text-gray-500">Type</span>
@@ -141,7 +144,22 @@
         </ul>
       </div>
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+      var notyf = new Notyf({
+        position: { x: "right", y: "top" },
+      });
+
+      notyf.success("Welcome {{ .Username }}");
+
+      function fetchedReports() {
+        notyf.success("Reports Fetched Successfully");
+      }
+
+      function createdReport() {
+        notyf.success("Report Created Successfully");
+      }
+
       htmx.onLoad(function (content) {
         // Add event listener to all edit buttons
         content.querySelectorAll(".edit-button").forEach((button) => {
@@ -179,6 +197,25 @@
           });
         });
       });
+
+      document
+        .getElementById("reports")
+        .addEventListener("htmx:afterSwap", function (event) {
+          var response = event.detail.xhr.response;
+
+          if (response && response.errors) {
+            // Iterate through errors and display them using Notify.js
+            response.errors.forEach(function (error) {
+              notyf.error("An Error Occured");
+            });
+          }
+        });
+
+      document
+        .getElementById("reports")
+        .addEventListener("htmx:timeout", function (event) {
+          notyf.error("An Error Occured");
+        });
     </script>
   </body>
 </html>
