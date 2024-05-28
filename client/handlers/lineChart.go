@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
-	"github.com/go-echarts/go-echarts/v2/types"
+	//"github.com/go-echarts/go-echarts/v2/types"
 
 	"github.com/Anuolu-2020/Expense-Calculator-App/pkg"
 )
@@ -20,7 +20,6 @@ func GetReports(r *http.Request) (*Response, error) {
 		"https://expense-calculator-api-j642.onrender.com/api/v1/report/" + userId)
 	if err != nil {
 		log.Printf("Error occured while fetching data: %v", err)
-		// http.Error(w, "An error occurred", http.StatusInternalServerError)
 		return nil, err
 	}
 
