@@ -71,3 +71,25 @@ func (h Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 
 	pkg.SendTemplate(w, "dashboard.html", data)
 }
+
+func (h *Handler) Graph(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Get user's username and photo
+	sessionData := ctx.Value("sessionData").(string)
+
+	userData, err := pkg.DecodeSessionData(sessionData)
+	if err != nil {
+		log.Printf("Error occured while decoding session: %v", err)
+		http.Error(w, "An error occurred", http.StatusInternalServerError)
+		return
+	}
+
+	data := TemplateData{
+		UserId:   userData.UserId,
+		Username: userData.Username,
+		Photo:    userData.Photo,
+	}
+
+	pkg.SendTemplate(w, "graphs.html", data)
+}
