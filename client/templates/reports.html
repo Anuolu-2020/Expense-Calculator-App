@@ -1,37 +1,42 @@
 {{ range .Results }}
-<li class="i{{ .ID }} px-2 py-4 flex justify-evenly items-center">
-  <div class="px-2 py-1 border rounded-md">{{ .Type }}</div>
+<li
+  class="i{{ .ID }} px-2 py-2 md:py-4 flex flex-col md:flex-row md:justify-evenly items-center"
+>
+  <div class="px-2 py-1 border rounded-md mb-2 md:mb-0">{{ .Type }}</div>
   <input
     type="text"
     name="source"
-    class="px-2 py-1 border rounded-md"
+    class="px-2 py-1 border rounded-md mb-2 md:mb-0"
     value="{{ .Source }}"
     readonly
   />
   <input
     type="text"
     name="amount"
-    class="px-2 py-1 border rounded-md"
+    class="px-2 py-1 border rounded-md mb-2 md:mb-0"
     value="{{ .Amount }}"
     readonly
   />
   <div class="flex justify-self-auto">
-    <button class="edit-button text-indigo-600 hover:text-indigo-500 mr-2">
+    <button
+      class="edit-button text-sm md:text-base text-indigo-600 hover:text-indigo-500 mr-2 mb-2 md:mb-0"
+    >
       Edit
     </button>
     <button
-      class="save-button text-indigo-600 hover:text-indigo-500 mr-2"
+      class="save-button text-sm md:text-base text-indigo-600 hover:text-indigo-500 mr-2 mb-2 md:mb-0"
       hx-put="https://expense-calculator-api-j642.onrender.com/api/v1/report/{{ .UserId }}/{{ .ID }}"
       hx-include=".i{{ .ID }} input"
       style="display: none"
       hx-swap="none"
+      hx-on::after-request="updatedReport()"
     >
       Save
     </button>
-
     <button
-      class="text-red-600 hover:text-red-500 delete-button"
+      class="text-sm md:text-base text-red-600 hover:text-red-500 delete-button mb-2 md:mb-0"
       hx-delete="https://expense-calculator-api-j642.onrender.com/api/v1/report/{{.ID}}"
+      hx-on::after-request="deletedReport()"
     >
       Delete
     </button>
