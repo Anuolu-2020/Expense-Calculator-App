@@ -1,39 +1,14 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
-	//"github.com/go-echarts/go-echarts/v2/types"
 
 	"github.com/Anuolu-2020/Expense-Calculator-App/pkg"
 )
-
-func GetReports(r *http.Request) (*Response, error) {
-	// user id
-	userId := r.PathValue("userId")
-
-	resp, err := http.Get(
-		"https://expense-calculator-api-j642.onrender.com/api/v1/report/" + userId)
-	if err != nil {
-		log.Printf("Error occured while fetching data: %v", err)
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	var response Response
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		log.Printf("Error occured while decoding data: %v", err)
-		// http.Error(w, "An error occurred", http.StatusInternalServerError)
-		return nil, err
-	}
-
-	return &response, nil
-}
 
 func GetLineItems(reports Response) []opts.LineData {
 	items := make([]opts.LineData, 0)
