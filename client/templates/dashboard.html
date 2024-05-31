@@ -13,6 +13,13 @@
         opacity: 0;
         transition: opacity 1s ease-out;
       }
+
+      /* Add responsive styles for the report list */
+      @media (max-width: 767px) {
+        li input[name="source"] {
+          display: none;
+        }
+      }
     </style>
     <link
       rel="stylesheet"
@@ -21,21 +28,23 @@
   </head>
   <body class="bg-gray-100">
     <section
-      class="bg-white shadow flex justify-between items-center h-20 px-8"
+      class="bg-white shadow flex flex-col md:flex-row justify-between items-center h-20 px-4 md:px-8"
     >
-      <h1 class="text-3xl font-bold text-indigo-500">Expense Tracker</h1>
-      <!-- Profile icon with username -->
+      <h1 class="text-2xl md:text-3xl font-bold text-indigo-500 mb-2 md:mb-0">
+        Expense Tracker
+      </h1>
       <div class="flex items-center space-x-2">
         <img
           src="{{ .Photo }}"
           alt="Profile Icon"
-          class="w-10 h-10 rounded-full"
+          class="w-8 h-8 md:w-10 md:h-10 rounded-full"
         />
-        <span class="text-gray-700">{{ .Username }}</span>
+        <span class="text-gray-700 text-sm md:text-base">{{ .Username }}</span>
       </div>
     </section>
+
     <section
-      class="min-h-screen justify-center flex flex-col items-center bg-gray-200 pb-12 pt-6 px-4 sm:px-6 lg:px-8"
+      class="min-h-screen justify-center flex flex-col items-center bg-gray-200 pb-6 pt-4 md:pb-12 md:pt-6 px-2 md:px-4 lg:px-8"
     >
       <div class="max-w-md w-full space-y-8">
         <form
@@ -103,26 +112,35 @@
         </form>
       </div>
 
-      <div id="{{ .UserId }}">
+      <div id="{{ .UserId }}" class="w-full md:w-auto">
         <h2 class="text-lg font-bold mb-2 mt-4 text-center text-indigo-600">
           Reports
         </h2>
         <ul
           id="expense-list"
-          class="w-fit bg-white divide-y divide-gray-200 relative"
+          class="w-full bg-white divide-y divide-gray-200 relative"
           hx-get="/api/reports/{{ .UserId }}"
           hx-trigger="load"
           hx-swap="beforeend"
           hx-target="#reports"
-          hx-request='\"timeout\":100'
           hx-indicator="#spinner"
           hx-ext="response-targets"
+          hx-on::timeout="timeoutError()"
           hx-on::after-request="fetchedReports()"
         >
-          <li class="flex justify-between px-6 py-3 bg-gray-50">
-            <span class="w-auto font-medium text-gray-500">Type</span>
-            <span class="w-auto font-medium text-gray-500">Source</span>
-            <span class="w-auto font-medium text-gray-500">Amount</span>
+          <li
+            class="flex flex-col md:flex-row justify-between px-2 md:px-6 py-3 bg-gray-50"
+          >
+            <span class="w-auto font-medium text-gray-500 mb-2 md:mb-0"
+              >Type</span
+            >
+            <span
+              class="hidden md:block w-auto font-medium text-gray-500 mb-2 md:mb-0"
+              >Source</span
+            >
+            <span class="w-auto font-medium text-gray-500 mb-2 md:mb-0"
+              >Amount</span
+            >
             <span class="w-auto font-medium text-gray-500 text-right"
               >Actions</span
             >
@@ -130,11 +148,12 @@
           <li class="flex justify-center items-center">
             <img
               id="spinner"
-              class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 z-10"
+              class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 z-10"
               src="/static/animations/Dual-Ring-Spinner.svg"
               alt="Loading Spinner"
             />
           </li>
+
           <div
             id="reports"
             hx-confirm="Are you sure?"
@@ -142,6 +161,15 @@
             hx-swap="outerHTML"
           ></div>
         </ul>
+
+        <div class="flex justify-center mt-4">
+          <a href="/reports-graph">
+            <button
+            class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+            View Graphs
+          </button>
+            <a/>
+        </div>
       </div>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
@@ -158,6 +186,28 @@
 
       function createdReport() {
         notyf.success("Report Created Successfully");
+      }
+
+      function updatedReport() {
+        notyf.success("Report Updated Successfully");
+      }
+
+      function deletedReport() {
+        notyf.success("Report Deleted Successfully");
+      }
+
+      function timeoutError() {
+        notyf.error("Server Error: Request timeout");
+      }
+
+      function sendError() {
+        notyf.error(
+          "Unexpected error, check your connection and try to refresh the page.",
+        );
+      }
+
+      function responseError() {
+        notyf.error("An Error Occurred");
       }
 
       htmx.onLoad(function (content) {
@@ -198,24 +248,8 @@
         });
       });
 
-      document
-        .getElementById("reports")
-        .addEventListener("htmx:afterSwap", function (event) {
-          var response = event.detail.xhr.response;
-
-          if (response && response.errors) {
-            // Iterate through errors and display them using Notify.js
-            response.errors.forEach(function (error) {
-              notyf.error("An Error Occured");
-            });
-          }
-        });
-
-      document
-        .getElementById("reports")
-        .addEventListener("htmx:timeout", function (event) {
-          notyf.error("An Error Occured");
-        });
+      //Set timeouts
+      htmx.config.timeout = 30000;
     </script>
   </body>
 </html>
