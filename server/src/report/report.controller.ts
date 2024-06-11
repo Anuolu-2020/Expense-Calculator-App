@@ -51,9 +51,9 @@ export class ReportController {
     return report;
   }
 
-  @Get(':type')
+  @Get('type/:reportType')
   async getAllReportsType(
-    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+    @Param('reportType', new ParseEnumPipe(ReportType)) type: string,
   ): Promise<any> {
     const reportType =
       type === 'income' ? ReportType.income : ReportType.expense;
@@ -63,26 +63,26 @@ export class ReportController {
     return { results: report };
   }
 
-  @Get(':type/:userId')
+  @Get('type/:reportType/:userId')
   async getReportTypeByUserId(
-    @Param('type', new ParseEnumPipe(ReportType)) type: string,
-    @Param('userId', ParseUUIDPipe) id: string,
+    @Param('reportType', new ParseEnumPipe(ReportType)) type: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<any> {
     const reportType =
       type === 'income' ? ReportType.income : ReportType.expense;
 
     const report = await this.reportService.getReportTypeByUserId(
       reportType,
-      id,
+      userId,
     );
 
     return { results: report };
   }
 
-  @Post(':type/:userId')
+  @Post('type/:reportType/:userId')
   async createReport(
     @Body() { source, amount }: CreateReportDto,
-    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+    @Param('reportType', new ParseEnumPipe(ReportType)) type: string,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<ReportResponseDto> {
     //Get report type enum
@@ -95,9 +95,9 @@ export class ReportController {
     });
   }
 
-  @Put(':type/:id')
+  @Put('type/:reportType/:id')
   async updateReportById(
-    @Param('type', new ParseEnumPipe(ReportType)) type: string,
+    @Param('reportType', new ParseEnumPipe(ReportType)) type: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body()
     body: UpdateReportDto,

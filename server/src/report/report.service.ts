@@ -63,6 +63,8 @@ export class ReportService {
     type: ReportType,
     id: string,
   ): Promise<ReportResponseDto[]> {
+    console.log(`User Id: ${id}`);
+
     const report = await this.prisma.reports.findMany({
       where: {
         type,
