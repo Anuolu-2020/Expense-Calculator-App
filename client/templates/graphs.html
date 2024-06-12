@@ -3,22 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Expense Tracker - Graphs</title>
+    <title>Expense Tracker - Report Graph</title>
     <link rel="stylesheet" href="/static/css/tailwind.css" />
+    <script src="/static/htmx/htmx.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
+    <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
     <style>
       .chart-container {
-        height: 400px;
+        height: fit-content;
         width: 100%;
       }
     </style>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
+    />
   </head>
   <body class="bg-gray-100">
     <section
       class="bg-white shadow flex flex-col md:flex-row justify-between items-center h-20 px-4 md:px-8"
     >
-      <h1 class="text-2xl md:text-3xl font-bold text-indigo-500 mb-2 md:mb-0">
-        Expense Tracker
-      </h1>
+      <a href="/dashboard"
+        ><h1
+          class="text-2xl md:text-3xl font-bold text-indigo-500 mb-2 md:mb-0"
+        >
+          Expense Tracker
+        </h1></a
+      >
       <div class="flex items-center space-x-2">
         <img
           src="{{ .Photo }}"
@@ -37,7 +48,14 @@
           <h2 class="text-lg font-bold mb-4 text-center text-indigo-600">
             Select Graph Options
           </h2>
-          <form class="space-y-4">
+          <form
+            class="space-y-4"
+            hx-post="/reportschart/{{.UserId }}"
+            hx-ext="json-enc"
+            hx-trigger="change from:select"
+            hx-swap="innerHTML"
+            hx-target="#chart"
+          >
             <div>
               <label
                 for="report-type"
@@ -46,10 +64,11 @@
               >
               <select
                 id="report-type"
+                name="reportType"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
               >
-                <option value="income">All Reports</option>
+                <option value="reports">All Reports</option>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
               </select>
@@ -63,6 +82,7 @@
               >
               <select
                 id="chart-type"
+                name="chartType"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
               >
@@ -75,11 +95,134 @@
 
         <div class="bg-white p-6 rounded-lg shadow-md mt-8">
           <h2 class="text-lg font-bold mb-4 text-center text-indigo-600">
-            Graph
+            Reports Graph
           </h2>
-          <div class="chart-container" id="chart"></div>
+          <div
+            hx-post="/reportschart/{{.UserId }}"
+            hx-trigger="load"
+            hx-target="this"
+            hx-ext="json-enc"
+            hx-swap="innerHTML"
+            hx-vals='{
+            "reportType": "reports",
+            "chartType": "piechart"
+            }'
+            hx-indicator="#spinner"
+            hx-on::timeout="timeoutError()"
+            class="chart-container"
+            id="chart"
+          >
+            <img
+              id="spinner"
+              class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 z-10"
+              src="/static/animations/Dual-Ring-Spinner.svg"
+              alt="Loading Spinner"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- Summary section -->
+      <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+        <h2 class="text-lg font-bold mb-4 text-center text-indigo-600">
+          Reports Summary
+        </h2>
+        <div
+          hx-get="/api/reports/summary/{{ .UserId }}"
+          hx-target="this"
+          hx-swap="innerHTML"
+          hx-trigger="load"
+          hx-indicator="#spinner2"
+          class="grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
+          <img
+            id="spinner2"
+            class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 z-10"
+            src="/static/animations/Dual-Ring-Spinner.svg"
+            alt="Loading Spinner"
+          />
+        </div>
+      </div>
+
+      <!-- Summary graph section -->
+      <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+        <h2 class="text-lg font-bold mb-4 text-center text-indigo-600">
+          Reports Summary Graph
+        </h2>
+        <form
+          hx-post="/reportschart/summary/{{.UserId }}"
+          hx-ext="json-enc"
+          hx-trigger="change from:select"
+          hx-swap="innerHTML"
+          hx-target="#chart-container"
+          class="mb-4"
+        >
+          <label
+            for="summary-chart-type"
+            class="block text-sm font-medium text-gray-700"
+          >
+            Chart Type:
+          </label>
+          <select
+            id="summary-chart-type"
+            name="summaryChartType"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            required
+          >
+            <option value="piechart">Pie Chart</option>
+            <option value="linechart">Line Chart</option>
+          </select>
+        </form>
+        <div
+          hx-post="/reportschart/summary/{{.UserId }}"
+          hx-trigger="load"
+          hx-target="this"
+          hx-ext="json-enc"
+          hx-swap="innerHTML"
+          hx-vals='{
+            "summaryChartType": "piechart"
+            }'
+          hx-indicator="#spinner3"
+          hx-on::timeout="timeoutError()"
+          id="chart-container"
+        >
+          <img
+            id="spinner3"
+            class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 z-10"
+            src="/static/animations/Dual-Ring-Spinner.svg"
+            alt="Loading Spinner"
+          />
+
+          <!-- Add your summary graph here -->
         </div>
       </div>
     </section>
+    <script>
+      var notyf = new Notyf({
+        position: { x: "right", y: "top" },
+      });
+
+      notyf.success("Welcome {{ .Username }}");
+
+      function fetchedReports() {
+        notyf.success("Reports Fetched Successfully");
+      }
+
+      function timeoutError() {
+        notyf.error("Server Error: Request timeout");
+      }
+
+      function sendError() {
+        notyf.error(
+          "Unexpected error, check your connection and try to refresh the page.",
+        );
+      }
+
+      function responseError() {
+        notyf.error("An Error Occurred");
+      }
+      });
+      //Set timeouts
+      htmx.config.timeout = 30000;
+    </script>
   </body>
 </html>
