@@ -24,8 +24,14 @@ func (r SetupRoute) InitializeRoutes(handler handlers.Handler, SessionManager *s
 	r.mux.HandleFunc("GET /welcome", middleware.CheckAuth(handler.Welcome, SessionManager))
 	r.mux.HandleFunc("GET /dashboard", middleware.CheckAuth(handler.Dashboard, SessionManager))
 	r.mux.HandleFunc("GET /reports-graph", middleware.CheckAuth(handler.Graph, SessionManager))
-	r.mux.HandleFunc("GET /linechart/{userId}", handler.LineChart)
-	r.mux.HandleFunc("GET /piechart/{userId}", handler.PieChart)
+	r.mux.HandleFunc(
+		"POST /reportschart/{userId}",
+		middleware.CheckAuth(handler.ReportChart, SessionManager),
+	)
+	r.mux.HandleFunc(
+		"POST /reportschart/summary/{userId}",
+		middleware.CheckAuth(handler.ReportSummaryChart, SessionManager),
+	)
 
 	apiRoutes := http.NewServeMux()
 
@@ -34,6 +40,11 @@ func (r SetupRoute) InitializeRoutes(handler handlers.Handler, SessionManager *s
 	apiRoutes.HandleFunc("GET /google/callback", handler.ApiGoogleCallback)
 	apiRoutes.HandleFunc("GET /cleardb", handler.ClearDB)
 	apiRoutes.HandleFunc("GET /reports/{userId}", handler.GetUserReports)
+	apiRoutes.HandleFunc(
+		"GET /reports/summary/{userId}",
+		middleware.CheckAuth(handler.GetReportsSummary, SessionManager),
+	)
+
 	apiRoutes.HandleFunc("POST /createUserReport/{userId}", handler.CreateUserReport)
 
 	r.mux.Handle("/api/", http.StripPrefix("/api", apiRoutes))
