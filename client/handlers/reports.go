@@ -76,7 +76,7 @@ func (h Handler) CreateUserReport(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, err := http.Post(
-		"https://expense-calculator-api-j642.onrender.com/api/v1/report/"+userRequest.Type+"/"+userId,
+		"https://expense-calculator-api-j642.onrender.com/api/v1/report/type/"+userRequest.Type+"/"+userId,
 		"application/json",
 		bytes.NewBuffer(reqBody),
 	)
