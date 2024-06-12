@@ -11,9 +11,9 @@ import (
 )
 
 func ValidateInputs(data interface{}) (bool, map[string]string) {
-	var validate *validator.Validate
+	// var validate *validator.Validate
 
-	validate = validator.New(validator.WithRequiredStructEnabled())
+	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	err := validate.Struct(data)
 	if err != nil {
