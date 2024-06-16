@@ -1,9 +1,7 @@
-
-# Use a minimal base image
 FROM alpine:latest
 
 # Set environment variables
-ENV NODE_VERSION=18.16.1
+ENV NODE_VERSION=21.1.0
 ENV GO_VERSION=1.22.3
 ENV PATH="/usr/local/go/bin:${PATH}"
 
@@ -37,7 +35,7 @@ RUN npm install && npm run build
 # Build the Go application
 RUN go build -tags netgo -ldflags '-s -w' -o app
 
-# Expose port 8000
+# Expose port 8080
 EXPOSE 8080
 
 # Start the application
