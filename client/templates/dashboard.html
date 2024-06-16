@@ -26,7 +26,7 @@
       href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
     />
   </head>
-  <body class="bg-gray-100">
+  <body  class="bg-gray-100">
     <section
       class="bg-white shadow flex flex-col md:flex-row justify-between items-center h-20 px-4 md:px-8"
     >
@@ -126,8 +126,8 @@
           hx-indicator="#spinner"
           hx-ext="response-targets"
           hx-on::timeout="timeoutError()"
-          hx-on::after-request="fetchedReports()"
-        >
+          hx-on::after-swap="fetchedReports()"
+          >
           <li
             class="flex flex-col md:flex-row justify-between px-2 md:px-6 py-3 bg-gray-50"
           >
