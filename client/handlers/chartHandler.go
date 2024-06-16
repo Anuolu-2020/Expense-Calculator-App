@@ -29,7 +29,7 @@ func (h Handler) ReportChart(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&reportBody)
 	if err != nil {
 		log.Printf("Json Error: %v", err)
-		pkg.SendErrorResponse(w, "Invalid Request Body", http.StatusBadRequest)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -39,11 +39,11 @@ func (h Handler) ReportChart(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if ok := slices.Contains(allowedReportValues, reportBody.ReportType); !ok {
-		pkg.SendErrorResponse(w, "Invalid reportType value", http.StatusBadRequest)
+		pkg.ServeErrorPage(w, r)
 	}
 
 	if ok := slices.Contains(allowedChartValues, reportBody.ChartType); !ok {
-		pkg.SendErrorResponse(w, "Invalid chartType value", http.StatusBadRequest)
+		pkg.ServeErrorPage(w, r)
 	}
 
 	// If it's All reports
@@ -79,7 +79,7 @@ func (h Handler) ReportSummaryChart(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&summaryReportBody)
 	if err != nil {
 		log.Printf("Json Error: %v", err)
-		pkg.SendErrorResponse(w, "Invalid Request Body", http.StatusBadRequest)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -96,7 +96,7 @@ func (h Handler) ReportSummaryChart(w http.ResponseWriter, r *http.Request) {
 	resp, err := GetSummary(userId)
 	if err != nil {
 		log.Printf("An Error Occurred: %v", err)
-		pkg.SendErrorResponse(w, "An Error Occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (h Handler) ReportSummaryChart(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		log.Printf("An Error Ocurred: %v", err)
-		pkg.SendErrorResponse(w, "An Error Occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 

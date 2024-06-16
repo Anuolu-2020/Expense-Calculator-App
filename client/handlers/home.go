@@ -59,7 +59,7 @@ func (h Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	userData, err := pkg.DecodeSessionData(sessionData)
 	if err != nil {
 		log.Printf("Error occured while decoding session: %v", err)
-		http.Error(w, "An error occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (h *Handler) Graph(w http.ResponseWriter, r *http.Request) {
 	userData, err := pkg.DecodeSessionData(sessionData)
 	if err != nil {
 		log.Printf("Error occured while decoding session: %v", err)
-		http.Error(w, "An error occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 

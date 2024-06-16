@@ -36,7 +36,7 @@ func (h Handler) GetReportsSummary(w http.ResponseWriter, r *http.Request) {
 	resp, err := GetSummary(userId)
 	if err != nil {
 		log.Printf("An Error Occurred: %v", err)
-		pkg.SendErrorResponse(w, "An Error Occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (h Handler) GetReportsSummary(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		log.Printf("An Error Ocurred: %v", err)
-		pkg.SendErrorResponse(w, "An Error Occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 

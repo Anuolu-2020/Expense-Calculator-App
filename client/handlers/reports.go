@@ -25,7 +25,7 @@ func (h Handler) GetUserReports(w http.ResponseWriter, r *http.Request) {
 		"https://expense-calculator-api-j642.onrender.com/api/v1/report/" + userId)
 	if err != nil {
 		log.Printf("Error occured while fetching data: %v", err)
-		http.Error(w, "An error occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
@@ -34,7 +34,7 @@ func (h Handler) GetUserReports(w http.ResponseWriter, r *http.Request) {
 	var response Response
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		log.Printf("Error occured while decoding data: %v", err)
-		http.Error(w, "An error occurred", http.StatusInternalServerError)
+		pkg.ServeErrorPage(w, r)
 		return
 	}
 
