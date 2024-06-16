@@ -17,9 +17,15 @@ func (r *SetupRoute) New(newMux *http.ServeMux) {
 	r.mux = newMux
 }
 
-func (r SetupRoute) InitializeRoutes(handler handlers.Handler, SessionManager *scs.SessionManager) {
+func (r SetupRoute) InitializeRoutes(
+	handler handlers.Handler,
+	SessionManager *scs.SessionManager,
+) {
 	// main routes
-	r.mux.HandleFunc("/", middleware.CheckAuth(handler.NotFound, SessionManager))
+	r.mux.HandleFunc(
+		"/",
+		middleware.CheckAuth(handler.NotFound, SessionManager),
+	)
 	r.mux.HandleFunc("GET /auth", middleware.IsLoggedIn(handler.Auth, SessionManager))
 	r.mux.HandleFunc("GET /welcome", middleware.CheckAuth(handler.Welcome, SessionManager))
 	r.mux.HandleFunc("GET /dashboard", middleware.CheckAuth(handler.Dashboard, SessionManager))
