@@ -4,6 +4,8 @@ import { ReportModule } from './report/report.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
 import * as Joi from 'joi';
+import { AppService } from './app.service';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import * as Joi from 'joi';
       },
     }),
   ],
-  controllers: [],
-  providers: [PrismaService],
+  controllers: [AppController],
+  providers: [PrismaService, AppService],
 })
 export class AppModule { }
