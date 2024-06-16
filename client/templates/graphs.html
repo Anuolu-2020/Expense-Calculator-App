@@ -14,10 +14,6 @@
         width: 100%;
       }
     </style>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
-    />
   </head>
   <body class="bg-gray-100">
     <section
@@ -52,7 +48,7 @@
             class="space-y-4"
             hx-post="/reportschart/{{.UserId }}"
             hx-ext="json-enc"
-            hx-trigger="change from:select"
+            hx-trigger="change from:#report-type, change from:#chart-type"
             hx-swap="innerHTML"
             hx-target="#chart"
           >
@@ -151,7 +147,7 @@
         <form
           hx-post="/reportschart/summary/{{.UserId }}"
           hx-ext="json-enc"
-          hx-trigger="change from:select"
+          hx-trigger="change from:#summary-chart-type"
           hx-swap="innerHTML"
           hx-target="#chart-container"
           class="mb-4"
@@ -196,6 +192,10 @@
         </div>
       </div>
     </section>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
+    />
     <script>
       var notyf = new Notyf({
         position: { x: "right", y: "top" },
