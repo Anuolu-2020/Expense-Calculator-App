@@ -44,7 +44,7 @@ func (r SetupRoute) InitializeRoutes(
 	// Api Routes
 	apiRoutes.HandleFunc("POST /google", handler.ApiGoogle)
 	apiRoutes.HandleFunc("GET /google/callback", handler.ApiGoogleCallback)
-	apiRoutes.HandleFunc("GET /cleardb", handler.ClearDB)
+	//	apiRoutes.HandleFunc("GET /cleardb", handler.ClearDB)
 	apiRoutes.HandleFunc("GET /reports/{userId}", handler.GetUserReports)
 	apiRoutes.HandleFunc(
 		"GET /reports/summary/{userId}",
