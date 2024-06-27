@@ -70,7 +70,7 @@ func GenerateReportLineChart(userId string, w http.ResponseWriter) {
 	reports, err := GetReports(userId)
 	if err != nil {
 		log.Printf("Error occurred while retrieving reports: %v", err)
-		pkg.SendErrorResponse(w, "An Error Occurred", http.StatusInternalServerError)
+		pkg.SendErrorResponse(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	GenerateLineChart(*reports, w)
@@ -84,7 +84,7 @@ func GenerateReportTypeLineChart(
 	reports, err := GetReportsType(reportsType, userId)
 	if err != nil {
 		log.Printf("Error occurred while retrieving reports: %v", err)
-		pkg.SendErrorResponse(w, "An Error Occurred", http.StatusInternalServerError)
+		pkg.SendErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

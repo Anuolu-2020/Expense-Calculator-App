@@ -36,12 +36,9 @@
     <button
       class="text-sm md:text-base text-red-600 hover:text-red-500 delete-button mb-2 md:mb-0"
       hx-delete="https://expense-calculator-api-j642.onrender.com/api/v1/report/{{.ID}}"
-      hx-on::after-request="deletedReport()"
     >
       Delete
     </button>
   </div>
 </li>
-{{ else }}
-<li class="px-6 py-4 whitespace-nowrap" colspan="4">No Reports Yet</li>
 {{ end }}

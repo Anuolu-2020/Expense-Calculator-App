@@ -69,7 +69,7 @@ func (h Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 		Photo:    userData.Photo,
 	}
 
-	pkg.SendTemplate(w, "dashboard.html", data)
+	pkg.SendExecutedTemplate(w, "dashboard", data)
 }
 
 func (h *Handler) Graph(w http.ResponseWriter, r *http.Request) {
@@ -91,5 +91,5 @@ func (h *Handler) Graph(w http.ResponseWriter, r *http.Request) {
 		Photo:    userData.Photo,
 	}
 
-	pkg.SendTemplate(w, "graphs.html", data)
+	pkg.SendExecutedTemplate(w, "graphs", data)
 }
