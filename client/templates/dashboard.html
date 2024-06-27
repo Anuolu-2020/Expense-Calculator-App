@@ -1,3 +1,4 @@
+{{ define "dashboard" }}
 <!doctype html>
 <html lang="en">
   <head>
@@ -8,6 +9,19 @@
     <script src="/static/htmx/htmx.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/json-enc.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
+    <script>
+       document.addEventListener("htmx:afterOnLoad", function(evt) {
+            var reportsContainer = document.getElementById("reports");
+            var noReportsMessage = document.getElementById("no-reports-message");
+
+            if (reportsContainer.children.length === 0 || reportsContainer.innerHTML.trim() === "") {
+                noReportsMessage.style.display = "block";
+            } else {
+                noReportsMessage.style.display = "none";
+            }
+        });
+
+    </script>
     <style>
       li.htmx-swapping input {
         opacity: 0;
@@ -27,23 +41,10 @@
     />
   </head>
   <body  class="bg-gray-100">
-    <section
-      class="bg-white shadow flex flex-col md:flex-row justify-between items-center h-20 px-4 md:px-8"
-    >
-      <a href="/dashboard"><h1 class="text-2xl md:text-3xl font-bold text-indigo-500 mb-2 md:mb-0">
-        Expense Tracker
-      </h1></a>
-      <div class="flex items-center space-x-2">
-        <img
-          src="{{ .Photo }}"
-          alt="Profile Icon"
-          class="w-8 h-8 md:w-10 md:h-10 rounded-full"
-        />
-        <span class="text-gray-700 text-sm md:text-base">{{ .Username }}</span>
-      </div>
-    </section>
 
-    <section
+      {{template "_header"}}
+
+        <section
       class="min-h-screen justify-center flex flex-col items-center bg-gray-200 pb-6 pt-4 md:pb-12 md:pt-6 px-2 md:px-4 lg:px-8"
     >
       <div class="max-w-md w-full space-y-8">
@@ -126,7 +127,6 @@
           hx-indicator="#spinner"
           hx-ext="response-targets"
           hx-on::timeout="timeoutError()"
-          hx-on::after-swap="fetchedReports()"
           >
           <li
             class="flex flex-col md:flex-row justify-between px-2 md:px-6 py-3 bg-gray-50"
@@ -154,12 +154,16 @@
             />
           </li>
 
+  <!-- Message to display when there are no reports -->
+          <p id="no-reports-message" class="px-6 py-4 whitespace-nowrap" colspan="4" style="display: none;">No reports available.</p>
+
           <div
             id="reports"
             hx-confirm="Are you sure?"
             hx-target-204="closest li"
             hx-swap="outerHTML"
-          ></div>
+          >
+          </div>
         </ul>
 
         <div class="flex justify-center mt-4">
@@ -180,20 +184,8 @@
 
       notyf.success("Welcome {{ .Username }}");
 
-      function fetchedReports() {
-        notyf.success("Reports Fetched Successfully");
-      }
-
       function createdReport() {
         notyf.success("Report Created Successfully");
-      }
-
-      function updatedReport() {
-        notyf.success("Report Updated Successfully");
-      }
-
-      function deletedReport() {
-        notyf.success("Report Deleted Successfully");
       }
 
       function timeoutError() {
@@ -248,8 +240,9 @@
         });
       });
 
-      //Set timeouts
+              //Set timeouts
       htmx.config.timeout = 30000;
     </script>
   </body>
 </html>
+{{ end }}
