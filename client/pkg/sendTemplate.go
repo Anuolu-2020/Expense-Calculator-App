@@ -36,7 +36,22 @@ func SendTemplate(w http.ResponseWriter, path string, body interface{}) {
 	err = tmpl.Execute(w, body)
 	if err != nil {
 		log.Printf("Error Executing Error: %v", err)
-		http.Error(w, "An Error Occurred", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func SendExecutedTemplate(w http.ResponseWriter, path string, body interface{}) {
+	tmpl, err := template.ParseGlob("templates/*")
+	if err != nil {
+		log.Printf("Error reading template file: %v", err)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, path, body)
+	if err != nil {
+		log.Printf("Error Executing Error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
