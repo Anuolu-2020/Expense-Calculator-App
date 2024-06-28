@@ -86,7 +86,7 @@ Check out the live version of the app [here](https://expense-tracker-app-u3za.on
 
 Below is an example of the interactive graph you can generate with this app:
 
-![Example Graph](./assests/report-graph.png)
+![Example Graph](./assets/report-graph.png)
 
 ## Technologies
 
