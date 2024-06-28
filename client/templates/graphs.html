@@ -1,4 +1,4 @@
-{{define "graphs" }}
+{{ define "graphs" }}
 <!doctype html>
 <html lang="en">
   <head>
@@ -15,9 +15,10 @@
         width: 100%;
       }
     </style>
+    <script></script>
   </head>
   <body class="bg-gray-100">
-    {{ template "_header"}}
+    {{ template "_header" .}}
 
     <section
       class="min-h-screen justify-center flex flex-col items-center bg-gray-200 pb-6 pt-4 md:pb-12 md:pt-6 px-2 md:px-4 lg:px-8"
@@ -33,6 +34,7 @@
             hx-ext="json-enc"
             hx-trigger="change from:#report-type, change from:#chart-type"
             hx-swap="innerHTML"
+            hx-indicator="#spinner"
             hx-target="#chart"
           >
             <div>
@@ -67,6 +69,7 @@
               >
                 <option value="piechart">Pie Chart</option>
                 <option value="linechart">Line Chart</option>
+                <option value="barchart">Bar Chart</option>
               </select>
             </div>
           </form>
@@ -87,7 +90,6 @@
             "chartType": "piechart"
             }'
             hx-indicator="#spinner"
-            hx-on::timeout="timeoutError()"
             class="chart-container"
             id="chart"
           >
@@ -132,8 +134,8 @@
           hx-ext="json-enc"
           hx-trigger="change from:#summary-chart-type"
           hx-swap="innerHTML"
-          hx-target="#chart-container"
-          class="mb-4"
+          hx-indicator="#spinner3"
+          hx-target="#summaryChart-container"
         >
           <label
             for="summary-chart-type"
@@ -149,58 +151,33 @@
           >
             <option value="piechart">Pie Chart</option>
             <option value="linechart">Line Chart</option>
+            <option value="barchart">Bar Chart</option>
           </select>
         </form>
-        <div
-          hx-post="/reportschart/summary/{{.UserId }}"
-          hx-trigger="load"
-          hx-target="this"
-          hx-ext="json-enc"
-          hx-swap="innerHTML"
-          hx-vals='{
+        <div class="chart-container">
+          <div
+            hx-post="/reportschart/summary/{{.UserId }}"
+            hx-trigger="load"
+            hx-target="this"
+            hx-ext="json-enc"
+            hx-swap="innerHTML"
+            hx-vals='{
             "summaryChartType": "piechart"
             }'
-          hx-indicator="#spinner3"
-          hx-on::timeout="timeoutError()"
-          id="chart-container"
-        >
-          <img
-            id="spinner3"
-            class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 z-10"
-            src="/static/animations/Dual-Ring-Spinner.svg"
-            alt="Loading Spinner"
-          />
-
-          <!-- Add your summary graph here -->
+            hx-indicator="#spinner3"
+            class="chart-container"
+            id="summaryChart-container"
+          >
+            <img
+              id="spinner3"
+              class="htmx-indicator absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-16 md:h-16 z-10"
+              src="/static/animations/Dual-Ring-Spinner.svg"
+              alt="Loading Spinner"
+            />
+          </div>
         </div>
       </div>
     </section>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
-    />
-    <script>
-      var notyf = new Notyf({
-        position: { x: "right", y: "top" },
-      });
-
-      function timeoutError() {
-        notyf.error("Server Error: Request timeout");
-      }
-
-      function sendError() {
-        notyf.error(
-          "Unexpected error, check your connection and try to refresh the page.",
-        );
-      }
-
-      function responseError() {
-        notyf.error("An Error Occurred");
-      }
-      });
-      //Set timeouts
-      htmx.config.timeout = 30000;
-    </script>
   </body>
 </html>
 {{ end }}

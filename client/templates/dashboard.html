@@ -42,7 +42,7 @@
   </head>
   <body  class="bg-gray-100">
 
-      {{template "_header"}}
+      {{ template "_header" .}}
 
         <section
       class="min-h-screen justify-center flex flex-col items-center bg-gray-200 pb-6 pt-4 md:pb-12 md:pt-6 px-2 md:px-4 lg:px-8"
@@ -96,20 +96,23 @@
               />
             </div>
           </div>
-
+         
           <div>
-            <button
-              type="submit"
-              class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Add
-              <img
-                class="htmx-indicator absolute left-3 transform -translate-y-1/2 w-5 h-5 text-white"
-                src="/static/animations/tail-spin.svg"
-                alt=""
-              />
-            </button>
+           <button
+            type="submit"
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+  >
+            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+               <img
+                class="htmx-indicator w-5 h-5 text-white"
+                 src="/static/animations/tail-spin.svg"
+                 alt="Loading"
+             />
+            </span>
+                Add
+             </button>
           </div>
+          
         </form>
       </div>
 

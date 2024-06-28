@@ -50,8 +50,11 @@ func (r SetupRoute) InitializeRoutes(
 		"GET /reports/summary/{userId}",
 		middleware.CheckAuth(handler.GetReportsSummary, SessionManager),
 	)
-
 	apiRoutes.HandleFunc("POST /createUserReport/{userId}", handler.CreateUserReport)
+	apiRoutes.HandleFunc(
+		"GET /proxy-image",
+		middleware.CheckAuth(handler.GetProfilePic, SessionManager),
+	)
 
 	r.mux.Handle("/api/", http.StripPrefix("/api", apiRoutes))
 }

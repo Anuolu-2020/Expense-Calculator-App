@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 
@@ -32,7 +33,7 @@ type Response struct {
 type TemplateData struct {
 	UserId   string
 	Username string
-	Photo    string
+	Photo    template.URL
 }
 
 func New(DB *gorm.DB, Session *scs.SessionManager) Handler {
@@ -66,7 +67,7 @@ func (h Handler) Dashboard(w http.ResponseWriter, r *http.Request) {
 	data := TemplateData{
 		UserId:   userData.UserId,
 		Username: userData.Username,
-		Photo:    userData.Photo,
+		Photo:    template.URL(userData.Photo),
 	}
 
 	pkg.SendExecutedTemplate(w, "dashboard", data)
@@ -88,7 +89,7 @@ func (h *Handler) Graph(w http.ResponseWriter, r *http.Request) {
 	data := TemplateData{
 		UserId:   userData.UserId,
 		Username: userData.Username,
-		Photo:    userData.Photo,
+		Photo:    template.URL(userData.Photo),
 	}
 
 	pkg.SendExecutedTemplate(w, "graphs", data)
