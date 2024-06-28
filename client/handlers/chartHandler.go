@@ -20,7 +20,7 @@ type summaryChartRequestBody struct {
 
 func (h Handler) ReportChart(w http.ResponseWriter, r *http.Request) {
 	allowedReportValues := []string{"reports", "income", "expense"}
-	allowedChartValues := []string{"piechart", "linechart"}
+	allowedChartValues := []string{"piechart", "linechart", "barchart"}
 
 	userId := r.PathValue("userId")
 
@@ -48,27 +48,35 @@ func (h Handler) ReportChart(w http.ResponseWriter, r *http.Request) {
 
 	// If it's All reports
 	if reportBody.ReportType == "reports" {
-		if reportBody.ChartType == "linechart" {
+		switch reportBody.ChartType {
+		case "linechart":
 			GenerateReportLineChart(userId, w)
 			return
-		} else {
+		case "piechart":
 			GenerateReportPieChart(userId, w)
+			return
+		default:
+			GenerateReportBarChart(userId, w)
 			return
 		}
 	}
 
 	// If it's expense or income
-	if reportBody.ChartType == "linechart" {
+	switch reportBody.ChartType {
+	case "linechart":
 		GenerateReportTypeLineChart(reportBody.ReportType, userId, w)
 		return
-	} else {
+	case "piechart":
 		GenerateReportTypePieChart(reportBody.ReportType, userId, w)
+		return
+	default:
+		GenerateReportTypeBarChart(reportBody.ReportType, userId, w)
 		return
 	}
 }
 
 func (h Handler) ReportSummaryChart(w http.ResponseWriter, r *http.Request) {
-	allowedChartValues := []string{"piechart", "linechart"}
+	allowedChartValues := []string{"piechart", "linechart", "barchart"}
 
 	var response summaryReport
 
@@ -108,11 +116,15 @@ func (h Handler) ReportSummaryChart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if summaryReportBody.ChartType == "piechart" {
+	switch summaryReportBody.ChartType {
+	case "piechart":
 		GenerateSummaryPieChart(response, w)
 		return
-	} else {
+	case "linechart":
 		GenerateSummaryLineChart(response, w)
+		return
+	default:
+		GenerateSummaryBarChart(response, w)
 		return
 	}
 }
