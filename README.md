@@ -3,7 +3,7 @@
 An expense tracker application with a powerful backend built using NestJS, Postgres, and a dynamic frontend crafted with Go, HTMX, Tailwind CSS, and Go ECharts.
 
 ## Features
-
+- **Authentication**: Create or sign into your account with google oauth.
 - **Create Reports**: Easily create reports for both expenses and income.
 - **Edit Reports**: Modify existing reports to keep your data accurate.
 - **Delete Reports**: Remove reports that are no longer needed.
